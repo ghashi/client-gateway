@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Capacity Sharing</string>
+    <string name="bg_title">Poli\nCoop2014</string>
+    <string name="benchmark_button">Get Benchmarks!</string>
+    <string name="client_button">Client</string>
+    <string name="gateway_button">Gateway</string>
+    <string name="client_title">Client</string>
+    <string name="gateway_title">Gateway</string>
+    
+    <string name="benchmark_title">Benchmark</string>
+    <string name="benchmark_title_keygen">Key Generation</string>
+    <string name="benchmark_title_signing">Signing</string>
+    <string name="benchmark_title_verification">Verification</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
