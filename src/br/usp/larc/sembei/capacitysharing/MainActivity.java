@@ -21,7 +21,7 @@ import android.widget.TextView;
  */
 public class MainActivity extends Activity {
 	
-	private static final String TAG = "CapacitySharing";
+	private static final String TAG = "Client-Gateway";
 	
 	/**
 	 * Whether or not the system UI should be auto-hidden after
