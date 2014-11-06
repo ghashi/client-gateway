@@ -2,6 +2,7 @@ package br.usp.larc.sembei.capacitysharing;
 
 import java.util.Locale;
 
+import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -15,6 +16,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -56,6 +58,25 @@ public class BenchmarkActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.benchamark, menu);
+		
+		/*
+		 * Beginning of the modified area
+		 */
+		
+		
+		findViewById(R.id.button_bench_keygen).setOnTouchListener(
+				benchmarkKeyGenListener);
+		
+		findViewById(R.id.button_bench_sign).setOnTouchListener(
+				benchmarkSignListener);
+		
+		findViewById(R.id.button_bench_verify).setOnTouchListener(
+				benchmarkVerifyListener);
+		
+		/*
+		 * End of the modified area
+		 */
+		
 		return true;
 	}
 
@@ -143,4 +164,39 @@ public class BenchmarkActivity extends Activity {
 		}
 	}
 
+	/*
+	 * Beginning of the modified area
+	 */
+	
+	View.OnTouchListener benchmarkKeyGenListener = new View.OnTouchListener() {
+
+		public boolean onTouch(View arg0, MotionEvent arg1) {
+			long elapsedTime = CryptoProvider.benchKeyGen();
+			TextView output = (TextView) findViewById(R.id.benchmark_output);
+			output.setText("Key Generated in " + elapsedTime + "ms");
+			return true;
+		}
+		
+	};
+	
+	View.OnTouchListener benchmarkSignListener = new View.OnTouchListener() {
+
+		public boolean onTouch(View v, MotionEvent event) {
+			return true;
+		}
+		
+	};
+	
+	View.OnTouchListener benchmarkVerifyListener = new View.OnTouchListener() {
+
+		public boolean onTouch(View v, MotionEvent event) {
+			return true;
+		}
+		
+	};
+	
+	/*
+	 * End of the modified area
+	 */
+	
 }
