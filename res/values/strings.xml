@@ -11,9 +11,9 @@
     
     <string name="benchmark_title">Benchmark</string>
     <string name="benchmark_title_keygen">Key Generation</string>
-    <string name="benchmark_title_signing">Signing</string>
-    <string name="benchmark_title_verification">Verification</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="benchmark_title_sign">Signature</string>
+    <string name="benchmark_title_verify">Verification</string>
+    <string name="benchmark_start_button">Start</string>
     <string name="action_settings">Settings</string>
 
 </resources>

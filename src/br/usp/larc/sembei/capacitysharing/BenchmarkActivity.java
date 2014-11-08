@@ -10,8 +10,11 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,9 +22,15 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class BenchmarkActivity extends Activity {
+	
+	private static final int BENCHMARK_KEYGEN = 0;
+	private static final int BENCHMARK_SIGN = 1;
+	private static final int BENCHMARK_VERIFY = 2;
+	private static final int BENCHMARK_TOTAL = 3;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -40,7 +49,7 @@ public class BenchmarkActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_benchamark);
+		setContentView(R.layout.activity_benchmark);
 		
 		Intent intent = getIntent();
 
@@ -51,35 +60,16 @@ public class BenchmarkActivity extends Activity {
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.benchamark, menu);
-		
-		/*
-		 * Beginning of the modified area
-		 */
-		
-		
-		findViewById(R.id.button_bench_keygen).setOnTouchListener(
-				benchmarkKeyGenListener);
-		
-		findViewById(R.id.button_bench_sign).setOnTouchListener(
-				benchmarkSignListener);
-		
-		findViewById(R.id.button_bench_verify).setOnTouchListener(
-				benchmarkVerifyListener);
-		
-		/*
-		 * End of the modified area
-		 */
+		getMenuInflater().inflate(R.menu.benchmark, menu);
 		
 		return true;
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -113,19 +103,19 @@ public class BenchmarkActivity extends Activity {
 		@Override
 		public int getCount() {
 			// Show 3 total pages.
-			return 3;
+			return BENCHMARK_TOTAL;
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
 			Locale l = Locale.getDefault();
 			switch (position) {
-			case 0:
+			case BENCHMARK_KEYGEN:
 				return getString(R.string.benchmark_title_keygen).toUpperCase(l);
-			case 1:
-				return getString(R.string.benchmark_title_signing).toUpperCase(l);
-			case 2:
-				return getString(R.string.benchmark_title_verification).toUpperCase(l);
+			case BENCHMARK_SIGN:
+				return getString(R.string.benchmark_title_sign).toUpperCase(l);
+			case BENCHMARK_VERIFY:
+				return getString(R.string.benchmark_title_verify).toUpperCase(l);
 			}
 			return null;
 		}
@@ -140,63 +130,141 @@ public class BenchmarkActivity extends Activity {
 		 * fragment.
 		 */
 		private static final String ARG_SECTION_NUMBER = "section_number";
+		private static int index = BENCHMARK_KEYGEN;
+		private int view;
 
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
 		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
+			PlaceholderFragment fragment = new PlaceholderFragment(index++);
 			Bundle args = new Bundle();
 			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
 			fragment.setArguments(args);
 			return fragment;
 		}
 
-		public PlaceholderFragment() {
+		public PlaceholderFragment(int index) {
+			view = index;
+		}
+		
+		public int getViewIndex() {
+			return view;
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_benchamark,
-					container, false);
+				Bundle savedInstanceState) {	
+			
+			View rootView = null;
+			
+			switch(view) {
+				case BENCHMARK_KEYGEN:
+					rootView = inflater.inflate(R.layout.fragment_benchmark_keygen,
+							container, false);
+					break;
+				case BENCHMARK_SIGN:
+					rootView = inflater.inflate(R.layout.fragment_benchmark_sign,
+							container, false);
+					break;
+				case BENCHMARK_VERIFY:
+					rootView = inflater.inflate(R.layout.fragment_benchmark_verify,
+							container, false);
+					break;
+			}
+			
 			return rootView;
 		}
+		
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+			setRetainInstance(true);
+			switch(view) {
+				case BENCHMARK_KEYGEN:
+					getActivity().findViewById(R.id.button_benchmark_keygen_start).setOnClickListener(
+							benchmarkListener);
+					break;
+				case BENCHMARK_SIGN:
+					getActivity().findViewById(R.id.button_benchmark_sign_start).setOnClickListener(
+							benchmarkListener);
+					break;
+				case BENCHMARK_VERIFY:
+					getActivity().findViewById(R.id.button_benchmark_verify_start).setOnClickListener(
+							benchmarkListener);
+					break;
+			}
+		}
+		
+		private class BenchmarkTask extends AsyncTask<Integer, Integer, Long> {
+
+			private int benchmark;
+			
+			public int[] getId(int benchmark) {
+				int[] id = new int[2];
+				switch(benchmark) {
+	 				case R.id.button_benchmark_keygen_start:
+	 					id[0] = R.id.benchmark_keygen_output;
+	 					id[1] = R.id.keygen_spinner;
+	 					break;
+	 				case R.id.button_benchmark_sign_start:
+	 					id[0] = R.id.benchmark_sign_output;
+	 					id[1] = R.id.sign_spinner;
+	 					break;
+	 				case R.id.button_benchmark_verify_start:
+	 					id[0] = R.id.benchmark_verify_output;
+	 					id[1] = R.id.verify_spinner;
+	 					break;
+				}
+				return id;
+			}
+			
+		     protected void onProgressUpdate(Integer... progress) {
+		    	 getActivity().setProgress(progress[0]);
+		     }
+
+		     protected void onPostExecute(Long elapsedTime) {
+				TextView output = (TextView) getActivity().findViewById(getId(benchmark)[0]);
+				output.setText("Key Generated in " + elapsedTime + "ms");
+				getActivity().findViewById(getId(benchmark)[1]).setVisibility(View.INVISIBLE);
+		     }
+
+			@Override
+			protected Long doInBackground(Integer... params) {
+				benchmark = params[0];
+				long elapsedTime;
+				
+				switch(benchmark) {
+	    	 		case R.id.button_benchmark_keygen_start:
+	    	 			elapsedTime = CryptoProvider.benchKeyGen();
+	    	 			break;
+	    	 		case R.id.button_benchmark_sign_start:
+	    	 			elapsedTime = 1;
+	    	 			break;
+	    	 		case R.id.button_benchmark_verify_start:
+	    	 			elapsedTime = 2;
+	    	 			break;
+	    	 		default:
+	    	 			elapsedTime = -1;
+	    	 			break;
+				}
+				
+				return elapsedTime;
+			}
+		 }
+		
+		View.OnClickListener benchmarkListener = new View.OnClickListener() {
+
+			public void onClick(View v) {
+				BenchmarkTask task = new BenchmarkTask();
+				TextView output = (TextView) getActivity().findViewById(task.getId(v.getId())[0]);
+				output.setText("");
+				getActivity().findViewById(task.getId(v.getId())[1]).setVisibility(View.VISIBLE);
+				task.execute(v.getId());
+			}
+			
+			
+		};
+				
 	}
-
-	/*
-	 * Beginning of the modified area
-	 */
-	
-	View.OnTouchListener benchmarkKeyGenListener = new View.OnTouchListener() {
-
-		public boolean onTouch(View arg0, MotionEvent arg1) {
-			long elapsedTime = CryptoProvider.benchKeyGen();
-			TextView output = (TextView) findViewById(R.id.benchmark_output);
-			output.setText("Key Generated in " + elapsedTime + "ms");
-			return true;
-		}
-		
-	};
-	
-	View.OnTouchListener benchmarkSignListener = new View.OnTouchListener() {
-
-		public boolean onTouch(View v, MotionEvent event) {
-			return true;
-		}
-		
-	};
-	
-	View.OnTouchListener benchmarkVerifyListener = new View.OnTouchListener() {
-
-		public boolean onTouch(View v, MotionEvent event) {
-			return true;
-		}
-		
-	};
-	
-	/*
-	 * End of the modified area
-	 */
-	
 }

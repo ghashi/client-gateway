@@ -9,7 +9,7 @@
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchKeyGen(JNIEnv *jvm, jobject jobj) {
-	int mark = 1;
+int mark = 1;
 	clock_t elapsed;
 
 	dm_t dm;
