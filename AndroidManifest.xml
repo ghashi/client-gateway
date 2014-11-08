@@ -26,24 +26,32 @@
         </activity>
         <activity
             android:name=".BenchmarkActivity"
-            android:label="@string/benchmark_title"
             android:allowTaskReparenting="false"
-            android:launchMode="singleInstance"
-            android:hardwareAccelerated="true"
-            android:multiprocess="true"
             android:alwaysRetainTaskState="false"
             android:clearTaskOnLaunch="true"
-            android:finishOnTaskLaunch="true"
-            android:immersive="true"
-            android:stateNotNeeded="true"
             android:exported="false"
             android:finishOnCloseSystemDialogs="true"
+            android:finishOnTaskLaunch="true"
+            android:hardwareAccelerated="true"
+            android:immersive="true"
+            android:label="@string/benchmark_title"
+            android:launchMode="singleInstance"
+            android:multiprocess="true"
+            android:stateNotNeeded="true"
             android:theme="@style/AppBaseTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                
+
                 <!-- <category android:name="android.intent.category.DEFAULT" /> -->
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ClientActivity"
+            android:label="@string/title_activity_client"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="br.usp.larc.sembei.capacitysharing.MainActivity" />
         </activity>
     </application>
 

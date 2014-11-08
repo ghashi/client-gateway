@@ -8,12 +8,13 @@
     <string name="gateway_button">Gateway</string>
     <string name="client_title">Client</string>
     <string name="gateway_title">Gateway</string>
-    
     <string name="benchmark_title">Benchmark</string>
     <string name="benchmark_title_keygen">Key Generation</string>
     <string name="benchmark_title_sign">Signature</string>
     <string name="benchmark_title_verify">Verification</string>
     <string name="benchmark_start_button">Start</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_client">Navigation</string>
+    <string name="button_register">Register</string>
 
 </resources>
