@@ -145,7 +145,7 @@ public class BenchmarkActivity extends Activity {
 		}
 
 		public PlaceholderFragment(int index) {
-			view = index;
+			view = index % BENCHMARK_TOTAL;
 		}
 		
 		public int getViewIndex() {
