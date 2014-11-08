@@ -53,6 +53,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.usp.larc.sembei.capacitysharing.MainActivity" />
         </activity>
+        <activity
+            android:name=".GatewayActivity"
+            android:label="@string/title_activity_gateway"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="br.usp.larc.sembei.capacitysharing.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

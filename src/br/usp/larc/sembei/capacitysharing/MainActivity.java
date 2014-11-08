@@ -130,13 +130,13 @@ public class MainActivity extends Activity {
 		 * Beginning of the modified area
 		 */
 		
-		findViewById(R.id.client_button).setOnTouchListener(
+		findViewById(R.id.client_button).setOnClickListener(
 				clientListener);
 		
-		findViewById(R.id.gateway_button).setOnTouchListener(
+		findViewById(R.id.gateway_button).setOnClickListener(
 				gatewayListener);
 		
-		findViewById(R.id.benchmark_button).setOnTouchListener(
+		findViewById(R.id.benchmark_button).setOnClickListener(
 				benchmarkListener);
 		
 		/*
@@ -190,29 +190,26 @@ public class MainActivity extends Activity {
 	 * Beginning of the modified area
 	 */
 	
-	View.OnTouchListener clientListener = new View.OnTouchListener() {
+	View.OnClickListener clientListener = new View.OnClickListener() {
 
-		public boolean onTouch(View arg0, MotionEvent arg1) {
-			
-			return false;
+		public void onClick(View view) {
+			startActivity(new Intent(MainActivity.this, ClientActivity.class));
 		}
 		
 	};
 	
-	View.OnTouchListener gatewayListener = new View.OnTouchListener() {
+	View.OnClickListener gatewayListener = new View.OnClickListener() {
 
-		public boolean onTouch(View v, MotionEvent event) {
-			
-			return false;
+		public void onClick(View v) {
+			startActivity(new Intent(MainActivity.this, GatewayActivity.class));
 		}
 		
 	};
 	
-	View.OnTouchListener benchmarkListener = new View.OnTouchListener() {
+	View.OnClickListener benchmarkListener = new View.OnClickListener() {
 
-		public boolean onTouch(View v, MotionEvent event) {
+		public void onClick(View v) {
 			startActivity(new Intent(MainActivity.this, BenchmarkActivity.class));
-			return true;
 		}
 		
 	};

@@ -16,5 +16,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_client">Navigation</string>
     <string name="button_register">Register</string>
+    <string name="title_activity_gateway">GatewayActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
