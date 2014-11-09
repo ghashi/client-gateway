@@ -10,10 +10,26 @@ extern "C" {
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    benchKeyGen
- * Signature: ()J
+ * Signature: (I)J
  */
 JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchKeyGen
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    benchSign
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchSign
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    benchVerify
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchVerify
+  (JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
 }

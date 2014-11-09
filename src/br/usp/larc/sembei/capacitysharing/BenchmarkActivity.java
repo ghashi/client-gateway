@@ -31,7 +31,7 @@ public class BenchmarkActivity extends Activity {
 	private static final int BENCHMARK_SIGN = 1;
 	private static final int BENCHMARK_VERIFY = 2;
 	private static final int BENCHMARK_TOTAL = 3;
-
+	
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
@@ -197,6 +197,11 @@ public class BenchmarkActivity extends Activity {
 		}
 		
 		private class BenchmarkTask extends AsyncTask<Integer, Integer, Long> {
+			
+
+			private static final int BENCHMARK_MARK_KEYGEN = 2;
+			private static final int BENCHMARK_MARK_SIGN = 1000;
+			private static final int BENCHMARK_MARK_VERIFY = 1000;
 
 			private int benchmark;
 			
@@ -225,7 +230,20 @@ public class BenchmarkActivity extends Activity {
 
 		     protected void onPostExecute(Long elapsedTime) {
 				TextView output = (TextView) getActivity().findViewById(getId(benchmark)[0]);
-				output.setText("Key Generated in " + elapsedTime + "ms");
+				switch(benchmark) {
+ 					case R.id.button_benchmark_keygen_start:
+ 						if(BENCHMARK_MARK_KEYGEN == 1)
+ 							output.setText("Key generated in " + elapsedTime + "ms");
+ 						else
+ 							output.setText(BENCHMARK_MARK_KEYGEN + " keys generated in " + elapsedTime + "ms");
+ 						break;
+ 					case R.id.button_benchmark_sign_start:
+ 						output.setText(BENCHMARK_MARK_SIGN + " messages signed in " + elapsedTime + "ms");
+ 						break;
+ 					case R.id.button_benchmark_verify_start:
+ 						output.setText(BENCHMARK_MARK_VERIFY + " signatures verified in " + elapsedTime + "ms");
+ 						break;
+				}
 				getActivity().findViewById(getId(benchmark)[1]).setVisibility(View.INVISIBLE);
 		     }
 
@@ -236,13 +254,13 @@ public class BenchmarkActivity extends Activity {
 				
 				switch(benchmark) {
 	    	 		case R.id.button_benchmark_keygen_start:
-	    	 			elapsedTime = CryptoProvider.benchKeyGen();
+	    	 			elapsedTime = CryptoProvider.benchKeyGen(BENCHMARK_MARK_KEYGEN);
 	    	 			break;
 	    	 		case R.id.button_benchmark_sign_start:
-	    	 			elapsedTime = 1;
+	    	 			elapsedTime = CryptoProvider.benchSign(BENCHMARK_MARK_SIGN);
 	    	 			break;
 	    	 		case R.id.button_benchmark_verify_start:
-	    	 			elapsedTime = 2;
+	    	 			elapsedTime = CryptoProvider.benchVerify(BENCHMARK_MARK_VERIFY);
 	    	 			break;
 	    	 		default:
 	    	 			elapsedTime = -1;
