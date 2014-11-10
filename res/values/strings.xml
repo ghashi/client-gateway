@@ -18,5 +18,8 @@
     <string name="button_register">Register</string>
     <string name="title_activity_gateway">GatewayActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_searchable">SearchableActivity</string>
+    <string name="loading">loading...</string>
+    <string name="online">online</string>
 
 </resources>
