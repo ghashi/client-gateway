@@ -1,5 +1,7 @@
 package br.usp.larc.sembei.capacitysharing;
 
+import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
+import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;

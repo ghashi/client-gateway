@@ -9,27 +9,51 @@ extern "C" {
 #endif
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchKeyGen
- * Signature: (I)J
+ * Method:    get_hmac
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchKeyGen
-  (JNIEnv *, jclass, jint);
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hmac
+  (JNIEnv *, jobject, jstring, jstring);
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchSign
- * Signature: (I)J
+ * Method:    verify_hmac
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchSign
-  (JNIEnv *, jclass, jint);
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_verify_1hmac
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchVerify
- * Signature: (I)J
+ * Method:    symmetric_encrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchVerify
-  (JNIEnv *, jclass, jint);
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1encrypt
+  (JNIEnv *, jobject, jstring, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    symmetric_decrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1decrypt
+  (JNIEnv *, jobject, jstring, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    asymmetric_encrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1encrypt
+  (JNIEnv *, jobject, jstring, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    asymmetric_decrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1decrypt
+  (JNIEnv *, jobject, jstring, jstring);
 
 #ifdef __cplusplus
 }

@@ -3,6 +3,7 @@ package br.usp.larc.sembei.capacitysharing;
 import java.util.Locale;
 
 import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
+import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -254,13 +255,13 @@ public class BenchmarkActivity extends Activity {
 				
 				switch(benchmark) {
 	    	 		case R.id.button_benchmark_keygen_start:
-	    	 			elapsedTime = CryptoProvider.benchKeyGen(BENCHMARK_MARK_KEYGEN);
+	    	 			elapsedTime = MSSCryptoProvider.keyGen(BENCHMARK_MARK_KEYGEN);
 	    	 			break;
 	    	 		case R.id.button_benchmark_sign_start:
-	    	 			elapsedTime = CryptoProvider.benchSign(BENCHMARK_MARK_SIGN);
+	    	 			elapsedTime = MSSCryptoProvider.sign(BENCHMARK_MARK_SIGN);
 	    	 			break;
 	    	 		case R.id.button_benchmark_verify_start:
-	    	 			elapsedTime = CryptoProvider.benchVerify(BENCHMARK_MARK_VERIFY);
+	    	 			elapsedTime = MSSCryptoProvider.verify(BENCHMARK_MARK_VERIFY);
 	    	 			break;
 	    	 		default:
 	    	 			elapsedTime = -1;

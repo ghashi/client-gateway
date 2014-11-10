@@ -1,10 +1,13 @@
 package br.usp.larc.sembei.capacitysharing;
 
+import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
+import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 import br.usp.larc.sembei.capacitysharing.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +15,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -193,7 +197,15 @@ public class MainActivity extends Activity {
 	View.OnClickListener clientListener = new View.OnClickListener() {
 
 		public void onClick(View view) {
-			startActivity(new Intent(MainActivity.this, ClientActivity.class));
+			MSSCryptoProvider mss = new MSSCryptoProvider(MainActivity.this);
+			if(!mss.hasKeyPair()) {
+				findViewById(R.id.home_spinner).setVisibility(View.VISIBLE);
+				Toast toast = Toast.makeText(MainActivity.this.getApplicationContext(), "Generating Key Pair", Toast.LENGTH_LONG);
+				toast.show();
+				new KeyGenTask().execute(mss);
+			}
+			else
+				startActivity(new Intent(MainActivity.this, ClientActivity.class));
 		}
 		
 	};
@@ -205,6 +217,23 @@ public class MainActivity extends Activity {
 		}
 		
 	};
+	
+	private class KeyGenTask extends AsyncTask<MSSCryptoProvider, Integer, Void> {
+
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			findViewById(R.id.home_spinner).setVisibility(View.INVISIBLE);
+			startActivity(new Intent(MainActivity.this, ClientActivity.class));
+		}
+		
+		protected Void doInBackground(MSSCryptoProvider... params) {
+			MSSCryptoProvider mss = params[0];
+			mss.keyGen();
+			return null;
+		}
+
+
+	}
 	
 	View.OnClickListener benchmarkListener = new View.OnClickListener() {
 
