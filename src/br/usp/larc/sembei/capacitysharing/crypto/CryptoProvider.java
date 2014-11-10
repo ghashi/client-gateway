@@ -12,7 +12,7 @@ public abstract class CryptoProvider {
 	// Digital Signature
 	public abstract void keyGen();
 	public abstract String sign(String message);
-	public abstract boolean verify(String message, String signature);
+	public abstract boolean verify(String message, String signature, String pkey);
 	
 	// HMAC
 	public native String get_hmac(String message, String key);

@@ -36,14 +36,20 @@ public class MSSCryptoProvider extends CryptoProvider {
 
 	@Override
 	public String sign(String message) {
-		// TODO Auto-generated method stub
-		return null;
+		String skey = fileManager.readFile(skeyFile);
+		Log.d("CASH", skey);
+		String[] sigState = MSS.sign(message, skey);
+		String signature = sigState[0];
+		skey = sigState[1];
+		Log.d("CASH", signature);
+		Log.d("CASH", skey);
+		fileManager.writeToFile(skeyFile, skey);
+		return signature;
 	}
 
 	@Override
-	public boolean verify(String message, String signature) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean verify(String message, String signature, String pkey) {
+		return MSS.verify(message, signature, pkey);
 	}
 	
 	// Benchmark
