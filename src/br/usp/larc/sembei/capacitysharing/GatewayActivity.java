@@ -3,18 +3,26 @@ package br.usp.larc.sembei.capacitysharing;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,8 +83,7 @@ public class GatewayActivity extends Activity {
 	private void configureWebView() {
 		WebView webview = (WebView) findViewById(R.id.webView);
 		WebSettings webSettings = webview.getSettings();
-//		webSettings.setJavaScriptEnabled(true);
-//		webSettings.setDefaultTextEncodingName("utf-8");
+		webSettings.setJavaScriptEnabled(true);
 		webview.setWebViewClient(new MyWebViewClient());
 	}
 
@@ -85,6 +92,7 @@ public class GatewayActivity extends Activity {
 	}
 
 	private class RequestTask extends AsyncTask<String, String, String>{
+
 		@Override
 		protected void onPreExecute() {
 	    	updateStatus(R.string.loading);
@@ -99,8 +107,23 @@ public class GatewayActivity extends Activity {
 	    @Override
 	    protected void onPostExecute(String result) {
 	    	super.onPostExecute(result);
-	    	updateStatus(R.string.online);
-	        renderString(result);
+			try {
+				updateStatus(R.string.online);
+
+				JSONObject requestJson = new JSONObject(result);
+				JSONObject response = new JSONObject(requestJson.getString("response"));
+				String hmac = requestJson.getString("hmac");
+				String remainingData = response.getString("remaining_data");
+				String content = response.getString("content");
+
+				byte[] data = Base64.decode(content, Base64.DEFAULT);
+				String html = new String(data, "UTF-8");
+				renderString(html);
+			} catch (JSONException | UnsupportedEncodingException | NullPointerException e) {
+				// TODO Auto-generated catch
+				e.printStackTrace();
+				renderString(e.getMessage());
+			}
 	    }
 
 		private void updateStatus(int text) {
@@ -110,7 +133,8 @@ public class GatewayActivity extends Activity {
 
 		private void renderString(String html) {
 			WebView webview = (WebView) findViewById(R.id.webView);
-			webview.loadData(html, "text/html; charset=UTF-8", null);
+			webview.loadDataWithBaseURL("x-data://base" +
+					"", html, "text/html", "utf-8", "");
 		}
 
 	    private String makeHttpRequest(String... uri) {
@@ -118,7 +142,13 @@ public class GatewayActivity extends Activity {
 	        HttpResponse response;
 	        String responseString = null;
 	        try {
-	            response = httpclient.execute(new HttpGet(uri[0]));
+	        	HttpPost post = new HttpPost(getString(R.string.AAAS_URL));
+
+	        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+	        	addRequestParameters(pairs);
+	        	post.setEntity(new UrlEncodedFormEntity(pairs));
+
+	            response = httpclient.execute(post);
 	            StatusLine statusLine = response.getStatusLine();
 	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
 	                ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -139,19 +169,17 @@ public class GatewayActivity extends Activity {
 	        }
 	        return responseString;
 		}
+
+		private void addRequestParameters(List<NameValuePair> pairs) {
+			pairs.add(new BasicNameValuePair("id", "2"));
+			pairs.add(new BasicNameValuePair("hmac", "WsLhjwwJ/azPBllA2l7LIQ=="));
+			pairs.add(new BasicNameValuePair("request", "XY5/3S5Zs8vrwL+8+uSKBVx4q9u3heOdAUdyKLpyARzNdC3vu9UEF3Fzpj+7aFq+2vHid9YbzpD4YedjCVaneSS/KPh1m47pP5/B4os5GmZqm+85+dG8uk5WKZjQx9eM"));
+		}
 	}
 
   private class MyWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//        if (Uri.parse(url).getHost().equals("www.google.com.br")) {
-//            // This is my web site, so do not override; let my WebView load the page
-//            return false;
-//        }
-//        // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
-//        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//        startActivity(intent);
-    	System.out.println(url);
     	makeHttpRequest(url);
         return true;
     }
