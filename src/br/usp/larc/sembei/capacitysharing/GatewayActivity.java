@@ -20,12 +20,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -79,8 +83,8 @@ public class GatewayActivity extends Activity {
 			}
 		});
 	}
-
 	private void configureWebView() {
+
 		WebView webview = (WebView) findViewById(R.id.webView);
 		WebSettings webSettings = webview.getSettings();
 		webSettings.setJavaScriptEnabled(true);
@@ -93,6 +97,8 @@ public class GatewayActivity extends Activity {
 
 	private class RequestTask extends AsyncTask<String, String, String>{
 
+		private String url;
+
 		@Override
 		protected void onPreExecute() {
 	    	updateStatus(R.string.loading);
@@ -101,6 +107,7 @@ public class GatewayActivity extends Activity {
 
 	    @Override
 	    protected String doInBackground(String... uri) {
+	    	setUrl(uri[0]);
 	        return makeHttpRequest(uri);
 	    }
 
@@ -118,13 +125,20 @@ public class GatewayActivity extends Activity {
 
 				byte[] data = Base64.decode(content, Base64.DEFAULT);
 				String html = new String(data, "UTF-8");
-				renderString(html);
-			} catch (JSONException | UnsupportedEncodingException | NullPointerException e) {
+
+				renderString(formatHtmlLink(html));
+				hideKeyboard();
+			} catch (JSONException | UnsupportedEncodingException
+					| NullPointerException e) {
 				// TODO Auto-generated catch
 				e.printStackTrace();
 				renderString(e.getMessage());
 			}
 	    }
+
+		private String formatHtmlLink(String html) {
+			return html.replaceAll("href=\"(?!http)", "href=\""+getUrl());
+		}
 
 		private void updateStatus(int text) {
 			TextView status = (TextView) findViewById(R.id.connection_status);
@@ -133,8 +147,8 @@ public class GatewayActivity extends Activity {
 
 		private void renderString(String html) {
 			WebView webview = (WebView) findViewById(R.id.webView);
-			webview.loadDataWithBaseURL("x-data://base" +
-					"", html, "text/html", "utf-8", "");
+			webview.loadDataWithBaseURL(null, html, "text/html", "utf-8", "");
+//			webview.loadData(html, "text/html; charset=UTF-8", null);
 		}
 
 	    private String makeHttpRequest(String... uri) {
@@ -175,13 +189,31 @@ public class GatewayActivity extends Activity {
 			pairs.add(new BasicNameValuePair("hmac", "WsLhjwwJ/azPBllA2l7LIQ=="));
 			pairs.add(new BasicNameValuePair("request", "XY5/3S5Zs8vrwL+8+uSKBVx4q9u3heOdAUdyKLpyARzNdC3vu9UEF3Fzpj+7aFq+2vHid9YbzpD4YedjCVaneSS/KPh1m47pP5/B4os5GmZqm+85+dG8uk5WKZjQx9eM"));
 		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
 	}
 
-  private class MyWebViewClient extends WebViewClient {
-    @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-    	makeHttpRequest(url);
-        return true;
-    }
-}
+	private class MyWebViewClient extends WebViewClient {
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			makeHttpRequest(url);
+			return true;
+		}
+	}
+
+  private void hideKeyboard() {
+	    InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+	    // check if no view has focus:
+	    View view = this.getCurrentFocus();
+	    if (view != null) {
+	        inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+	    }
+	}
 }
