@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="br.usp.larc.sembei.capacitysharing.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" >
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="br.usp.larc.sembei.capacitysharing.BenchmarkActivity"
+            android:name=".BenchmarkActivity"
             android:allowTaskReparenting="false"
             android:alwaysRetainTaskState="false"
             android:clearTaskOnLaunch="true"
@@ -48,31 +48,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="br.usp.larc.sembei.capacitysharing.ClientActivity"
+            android:name=".ClientActivity"
             android:label="@string/title_activity_client"
-            android:parentActivityName="br.usp.larc.sembei.capacitysharing.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.usp.larc.sembei.capacitysharing.MainActivity" />
         </activity>
         <activity
-            android:name="br.usp.larc.sembei.capacitysharing.GatewayActivity"
+            android:name=".GatewayActivity"
             android:label="@string/title_activity_gateway"
-            android:parentActivityName="br.usp.larc.sembei.capacitysharing.MainActivity" >
+            android:parentActivityName=".MainActivity" >
 
-			<!-- enable the search dialog to send searches to SearchableActivity -->
-       	    <meta-data android:name="android.app.default_searchable"
-                   android:value=".SearchableActivity" />
+            <!-- enable the search dialog to send searches to SearchableActivity -->
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchableActivity" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.usp.larc.sembei.capacitysharing.MainActivity" />
         </activity>
         <activity
-            android:name="br.usp.larc.sembei.capacitysharing.SearchableActivity"
+            android:name=".SearchableActivity"
             android:label="@string/title_activity_searchable" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register" >
         </activity>
     </application>
 

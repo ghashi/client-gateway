@@ -22,5 +22,6 @@
     <string name="loading">loading...</string>
     <string name="online">online</string>
     <string name="AAAS_URL">http://192.168.1.2:3000/redirect</string>
+    <string name="title_activity_register">RegisterActivity</string>
 
 </resources>
