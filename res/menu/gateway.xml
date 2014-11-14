@@ -3,6 +3,22 @@
     tools:context="br.usp.larc.sembei.capacitysharing.GatewayActivity" >
 
     <item
+        android:id="@+id/action_bluetooth"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_bluetooth"/>
+    <item
+        android:id="@+id/scan"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/connect"/>
+    <item
+        android:id="@+id/discoverable"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/discoverable"/>
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
