@@ -21,10 +21,10 @@
     <string name="title_activity_searchable">SearchableActivity</string>
     <string name="loading">loading...</string>
     <string name="online">online</string>
-    <string name="AAAS_URL">http://192.168.0.15:3000/redirect</string>
+    <string name="AAAS_URL">http://192.168.2.111:3000/redirect</string>
     <string name="title_activity_register">RegisterActivity</string>
 
-    <!--  BluetoothChat -->
+    <!-- BluetoothChat -->
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
@@ -32,7 +32,7 @@
     <string name="title_connected_to">connected: </string>
     <string name="title_not_connected">not connected</string>
 
-    <!--  DeviceListActivity -->
+    <!-- DeviceListActivity -->
     <string name="scanning">scanning for devices...</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_paired">No devices have been paired</string>
@@ -45,5 +45,6 @@
     <string name="action_bluetooth">Enable bluetooth</string>
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
+    <string name="title_activity_supplicant">SupplicantActivity</string>
 
 </resources>

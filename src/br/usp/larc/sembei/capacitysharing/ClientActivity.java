@@ -1,18 +1,20 @@
 package br.usp.larc.sembei.capacitysharing;
 
-import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
-import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
-import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+import br.usp.larc.sembei.capacitysharing.bluetooth.DeviceListActivity;
 
-public class ClientActivity extends Activity {
-
+public class ClientActivity extends SupplicantActivity {
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_client);
+		super.onCreate(savedInstanceState);
 	}
 
 	@Override
@@ -30,7 +32,30 @@ public class ClientActivity extends Activity {
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
+		} else if (id == R.id.action_bluetooth) {
+	        // Get local Bluetooth adapter
+	        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			// If the adapter is null, then Bluetooth is not supported
+	        if (mBluetoothAdapter == null) {
+	            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+	        }
+	        if (!mBluetoothAdapter.isEnabled()) {
+	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+	        }
+			return true;
 		}
+		else if(id == R.id.discoverable){
+           // Ensure this device is discoverable by others
+           ensureDiscoverable();
+           return true;
+       }
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void makeHttpRequest(String url) {
+		// TODO Auto-generated method stub
+		
 	}
 }
