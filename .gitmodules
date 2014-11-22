@@ -1,3 +1,6 @@
 [submodule "jni/hashbasedsignature-code"]
 	path = jni/hashbasedsignature-code
 	url = ssh://puodzius@git.code.sf.net/p/hashbasedsignature/code
+[submodule "jni/certificate"]
+	path = jni/certificate
+	url = git@github.com:ghashi/certificate.git
