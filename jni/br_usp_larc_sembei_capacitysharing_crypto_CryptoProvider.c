@@ -1,105 +1,96 @@
 #include <jni.h>
 
-#include "time.h"
-#include "mss.h"
+#include "aes_128.h"
+#include "hmac.h"
+#include "util.h"
 
 #include <string.h>
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchKeyGen
- * Signature: ()J
+ * Method:    get_hmac
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchKeyGen(JNIEnv *jvm, jobject jobj, jint mark) {
-	clock_t elapsed;
-	unsigned int i;
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hmac(JNIEnv *jvm, jobject jobj, jstring jmessage, jstring jkey) {
+	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
+        const unsigned char *key = (*jvm)->GetStringUTFChars(jvm, jkey, JNI_FALSE);
 
-	dm_t dm;
-	mmo_t mmo;
-	struct mss_node node[2];
-	struct mss_state state;
-	unsigned char seed[LEN_BYTES(MSS_SEC_LVL)], pkey[NODE_VALUE_SIZE];
+        unsigned char tag[HMAC_TAG_SIZE];
 
-	elapsed = -clock();
-	for(i = 0; i < mark; i++)
-		mss_keygen_core(&dm,&mmo, seed, &node[0], &node[1], &state, pkey);
-	elapsed += clock();
+	get_hmac(message, key, tag);
+        char buffer[2 * HMAC_TAG_SIZE];
 
-        return 1000*(float)elapsed/CLOCKS_PER_SEC;
+        base64encode(tag, HMAC_TAG_SIZE, buffer, 2 * HMAC_TAG_SIZE);
+        jstring jtag = (*jvm)->NewStringUTF(jvm, buffer);
+
+        (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
+        (*jvm)->ReleaseStringUTFChars(jvm, jkey, key);
+
+	return jtag;
 }
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchSign
- * Signature: ()J
+ * Method:    verify_hmac
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchSign(JNIEnv *jvm, jclass jobj, jint mark) {
-	clock_t elapsed;
-	unsigned int i;
+JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_verify_1hmac(JNIEnv *jvm, jobject jobj, jstring jmessage, jstring jkey, jstring jtag) {
+	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
+        const unsigned char *key = (*jvm)->GetStringUTFChars(jvm, jkey, JNI_FALSE);
+        const char *tag = (*jvm)->GetStringUTFChars(jvm, jtag, JNI_FALSE);
 
-	/* Auxiliary varibles */
-	struct mss_node node[3];
-	unsigned char hash[LEN_BYTES(WINTERNITZ_N)];
-	unsigned char ots[MSS_OTS_SIZE];
-	unsigned char aux[LEN_BYTES(WINTERNITZ_SEC_LVL)];
+	unsigned int buffer_len = (*jvm)->GetStringUTFLength(jvm, jtag);
+	unsigned char *buffer = malloc(buffer_len);
+	base64decode(tag, buffer_len, buffer, &buffer_len);
 
-	mmo_t hash_mmo;
-	dm_t hash_dm;
+	jboolean accepted = verify_hmac(buffer, message, key);
 
-	/* Merkle-tree variables */
-	struct mss_state state;
-	struct mss_node authpath[MSS_HEIGHT];
+        (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
+        (*jvm)->ReleaseStringUTFChars(jvm, jkey, key);
+        (*jvm)->ReleaseStringUTFChars(jvm, jtag, tag);
 
-	unsigned char pkey[NODE_VALUE_SIZE];
-	unsigned char skey[LEN_BYTES(MSS_SEC_LVL)] = {0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3A,0x3B,0x3C,0x3D,0x3E,0x3F};
+	free(buffer);
 
-	mss_keygen_core(&hash_dm, &hash_mmo, skey, &node[0], &node[1], &state, pkey);
+        return accepted;
 
-	const char message[] = "Long Johnson, Don Piano";
-
-	elapsed = -clock();
-	for(i = 0; i < mark; i++)
-		mss_sign_core(&state, skey, &node[0], (const char*)message, strlen(message) + 1, &hash_mmo, &hash_dm, hash, i, &node[1], &node[2], ots, authpath);
-	elapsed += clock();
-
-        return 1000*(float)elapsed/CLOCKS_PER_SEC;
 }
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    benchVerify
- * Signature: ()J
+ * Method:    symmetric_encrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_benchVerify(JNIEnv *jvm, jclass jobj, jint mark) {
-	clock_t elapsed;
-	unsigned int i;
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1encrypt(JNIEnv *jvm, jobject jobj, jstring jplaintext, jstring jkey) {
+        jstring jtag = (*jvm)->NewStringUTF(jvm, "teste");
+	return jtag;
+}
 
-	/* Auxiliary varibles */
-	struct mss_node node[3];
-	unsigned char hash[LEN_BYTES(WINTERNITZ_N)];
-	unsigned char ots[MSS_OTS_SIZE];
-	unsigned char aux[LEN_BYTES(WINTERNITZ_SEC_LVL)];
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    symmetric_decrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1decrypt(JNIEnv *jvm, jobject jobj, jstring jciphertext, jstring jkey) {
+        jstring jtag = (*jvm)->NewStringUTF(jvm, "teste");
+	return jtag;
+}
 
-	mmo_t hash_mmo;
-	dm_t hash_dm;
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    asymmetric_encrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1encrypt(JNIEnv *jvm, jobject jobj, jstring plaintext, jstring pkey) {
+        jstring jtag = (*jvm)->NewStringUTF(jvm, "teste");
+	return jtag;
+}
 
-	/* Merkle-tree variables */
-	struct mss_state state;
-	struct mss_node authpath[MSS_HEIGHT];
-
-	unsigned char pkey[NODE_VALUE_SIZE];
-	unsigned char skey[LEN_BYTES(MSS_SEC_LVL)] = {0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3A,0x3B,0x3C,0x3D,0x3E,0x3F};
-
-	mss_keygen_core(&hash_dm, &hash_mmo, skey, &node[0], &node[1], &state, pkey);
-
-	const char message[] = "Long Johnson, Don Piano";
-
-	mss_sign_core(&state, skey, &node[0], (const char*)message, strlen(message) + 1, &hash_mmo, &hash_dm, hash, i, &node[1], &node[2], ots, authpath);
-
-	elapsed = -clock();
-	for(i = 0; i < mark; i++)
-		mss_verify_core(authpath, node[0].value, message, strlen(message) + 1, &hash_mmo, &hash_dm, hash, node[0].index, ots, aux, &node[0], pkey);
-	elapsed += clock();
-
-        return 1000*(float)elapsed/CLOCKS_PER_SEC;
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    asymmetric_decrypt
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1decrypt(JNIEnv *jvm, jobject jobj, jstring ciphertext, jstring skey) {
+        jstring jtag = (*jvm)->NewStringUTF(jvm, "teste");
+	return jtag;
 }

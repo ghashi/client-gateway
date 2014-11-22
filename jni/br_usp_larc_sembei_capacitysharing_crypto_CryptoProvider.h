@@ -18,9 +18,9 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    verify_hmac
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_verify_1hmac
+JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_verify_1hmac
   (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
