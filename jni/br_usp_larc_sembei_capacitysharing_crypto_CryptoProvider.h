@@ -26,18 +26,18 @@ JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_Crypto
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    symmetric_encrypt
- * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1encrypt
-  (JNIEnv *, jobject, jstring, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    symmetric_decrypt
- * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_symmetric_1decrypt
-  (JNIEnv *, jobject, jstring, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider

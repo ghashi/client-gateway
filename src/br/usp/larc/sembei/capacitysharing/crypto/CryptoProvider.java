@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.Random;
 
 import android.content.Context;
+import android.util.Base64;
 import android.widget.Toast;
 
 public abstract class CryptoProvider {
 	
-	private final int symmetricKeySize = (128 / 8);
+	private final int securityLevel = 128;
+	private final int symmetricKeySize = (securityLevel / 8);
 	
 	// Digital Signature
 	public abstract void keyGen();
@@ -22,14 +24,20 @@ public abstract class CryptoProvider {
 	public native boolean verify_hmac(String message, String key, String tag);
 	
 	// Symmetric Encryption
-	public byte[] symmetric_keygen() {
+	public String symmetric_keyGen() {
 		byte[] key = new byte[symmetricKeySize];
 		Random randomGenerator = new Random();
 		randomGenerator.nextBytes(key);
-		return key;
+		return Base64.encodeToString(key, Base64.DEFAULT);
 	}
-	public native String symmetric_encrypt(String plaintext, String key);
-	public native String symmetric_decrypt(String ciphertext, String key);
+	public String symmetric_ivGen() {
+		byte[] iv = new byte[symmetricKeySize];
+		Random randomGenerator = new Random();
+		randomGenerator.nextBytes(iv);
+		return Base64.encodeToString(iv, Base64.DEFAULT);
+	}
+	public native String symmetric_encrypt(String plaintext, String iv, String key);
+	public native String symmetric_decrypt(String ciphertext, String iv, String key);
 	
 	// Symmetric Encryption
 	public native String asymmetric_encrypt(String plaintext, String pkey);

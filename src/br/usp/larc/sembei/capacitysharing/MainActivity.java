@@ -135,6 +135,25 @@ public class MainActivity extends Activity {
 		 * Beginning of the modified area
 		 */
 		
+		CryptoProvider cp = new MSSCryptoProvider(MainActivity.this);
+		String key = cp.symmetric_keyGen();
+		String iv = cp.symmetric_ivGen();
+		String ciphertext = cp.symmetric_encrypt("teste---DEU!", iv, key);
+		
+		Toast toast = Toast.makeText(getApplicationContext(), cp.symmetric_decrypt(ciphertext, iv, key), Toast.LENGTH_LONG);
+		toast.show();
+//		if(cp.verify_hmac("TaNaNannn", new String(key), tag)) {
+//			toast = Toast.makeText(getApplicationContext(), "Belezoca!", Toast.LENGTH_LONG);
+//			toast.show();
+//			if(!cp.verify_hmac("TaNaNannm", new String(key), tag))
+//				toast = Toast.makeText(getApplicationContext(), "MESMO!", Toast.LENGTH_LONG);
+//			else
+//				toast = Toast.makeText(getApplicationContext(), "#sqn", Toast.LENGTH_LONG);
+//		}
+//		else
+//			toast = Toast.makeText(getApplicationContext(), "Merdão!", Toast.LENGTH_LONG);
+//		toast.show();
+		
 		findViewById(R.id.client_button).setOnClickListener(
 				clientListener);
 		
