@@ -1,6 +1,3 @@
 [submodule "jni/hashbasedsignature-code"]
 	path = jni/hashbasedsignature-code
 	url = ssh://puodzius@git.code.sf.net/p/hashbasedsignature/code
-[submodule "jni/relic"]
-	path = jni/relic
-	url = https://github.com/relic-toolkit/relic.git
