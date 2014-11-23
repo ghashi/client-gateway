@@ -18,5 +18,10 @@
     <string name="button_register">Register</string>
     <string name="title_activity_gateway">GatewayActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_searchable">SearchableActivity</string>
+    <string name="loading">loading...</string>
+    <string name="online">online</string>
+    <string name="AAAS_URL">http://192.168.1.2:3000/redirect</string>
+    <string name="title_activity_register">RegisterActivity</string>
 
 </resources>
