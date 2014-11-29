@@ -46,5 +46,6 @@
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
     <string name="title_activity_supplicant">SupplicantActivity</string>
+    <string name="large_text_register">Código de ativação</string>
 
 </resources>

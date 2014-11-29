@@ -25,9 +25,9 @@ import android.widget.Toast;
  * @see SystemUiHider
  */
 public class MainActivity extends Activity {
-	
+
 	private static final String TAG = "Client-Gateway";
-	
+
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		System.loadLibrary("crypto-library");
 
 		setContentView(R.layout.activity_main);
@@ -127,42 +127,44 @@ public class MainActivity extends Activity {
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
-		//findViewById(R.id.benchmark_button).setOnTouchListener(
-		//		mDelayHideTouchListener);
-		
-		
+		// findViewById(R.id.benchmark_button).setOnTouchListener(
+		// mDelayHideTouchListener);
+
 		/*
 		 * Beginning of the modified area
 		 */
-		
-		CryptoProvider cp = new MSSCryptoProvider(MainActivity.this);
-		String key = cp.symmetric_keyGen();
-		String iv = cp.symmetric_ivGen();
-		String ciphertext = cp.symmetric_encrypt("teste---DEU!", iv, key);
-		
-		Toast toast = Toast.makeText(getApplicationContext(), cp.symmetric_decrypt(ciphertext, iv, key), Toast.LENGTH_LONG);
-		toast.show();
-//		if(cp.verify_hmac("TaNaNannn", new String(key), tag)) {
-//			toast = Toast.makeText(getApplicationContext(), "Belezoca!", Toast.LENGTH_LONG);
-//			toast.show();
-//			if(!cp.verify_hmac("TaNaNannm", new String(key), tag))
-//				toast = Toast.makeText(getApplicationContext(), "MESMO!", Toast.LENGTH_LONG);
-//			else
-//				toast = Toast.makeText(getApplicationContext(), "#sqn", Toast.LENGTH_LONG);
-//		}
-//		else
-//			toast = Toast.makeText(getApplicationContext(), "Merdão!", Toast.LENGTH_LONG);
-//		toast.show();
-		
-		findViewById(R.id.client_button).setOnClickListener(
-				clientListener);
-		
-		findViewById(R.id.gateway_button).setOnClickListener(
-				gatewayListener);
-		
+
+		// CryptoProvider cp = new MSSCryptoProvider(MainActivity.this);
+		// String key = cp.symmetric_keyGen();
+		// String iv = cp.symmetric_ivGen();
+		// String ciphertext = cp.symmetric_encrypt("teste---DEU!", iv, key);
+
+		// Toast toast = Toast.makeText(getApplicationContext(),
+		// cp.symmetric_decrypt(ciphertext, iv, key), Toast.LENGTH_LONG);
+		// toast.show();
+		// if(cp.verify_hmac("TaNaNannn", new String(key), tag)) {
+		// toast = Toast.makeText(getApplicationContext(), "Belezoca!",
+		// Toast.LENGTH_LONG);
+		// toast.show();
+		// if(!cp.verify_hmac("TaNaNannm", new String(key), tag))
+		// toast = Toast.makeText(getApplicationContext(), "MESMO!",
+		// Toast.LENGTH_LONG);
+		// else
+		// toast = Toast.makeText(getApplicationContext(), "#sqn",
+		// Toast.LENGTH_LONG);
+		// }
+		// else
+		// toast = Toast.makeText(getApplicationContext(), "Merdão!",
+		// Toast.LENGTH_LONG);
+		// toast.show();
+
+		findViewById(R.id.client_button).setOnClickListener(clientListener);
+
+		findViewById(R.id.gateway_button).setOnClickListener(gatewayListener);
+
 		findViewById(R.id.benchmark_button).setOnClickListener(
 				benchmarkListener);
-		
+
 		/*
 		 * End of the modified area
 		 */
@@ -209,60 +211,69 @@ public class MainActivity extends Activity {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
-	
+
 	/*
 	 * Beginning of the modified area
 	 */
-	
+
 	View.OnClickListener clientListener = new View.OnClickListener() {
 
 		public void onClick(View view) {
 			MSSCryptoProvider mss = new MSSCryptoProvider(MainActivity.this);
-			if(!mss.hasKeyPair()) {
+			if (!mss.hasKeyPair()) {
 				findViewById(R.id.home_spinner).setVisibility(View.VISIBLE);
-				Toast toast = Toast.makeText(MainActivity.this.getApplicationContext(), "Generating Key Pair", Toast.LENGTH_LONG);
+				Toast toast = Toast.makeText(
+						MainActivity.this.getApplicationContext(),
+						"Generating Key Pair", Toast.LENGTH_LONG);
 				toast.show();
 				new KeyGenTask().execute(mss);
+			} else {
+				Intent clientRegisterIntent = new Intent(MainActivity.this,
+						RegisterActivity.class);
+				//Bundle extras = clientRegisterIntent.getExtras();
+				//extras.putInt("nextActivity", ClientActivity.class);
+				//startActivity(clientRegisterIntent);
+				
+				// TODO startActivity(new Intent(MainActivity.this,
+				// ClientActivity.class));
 			}
-			else
-				startActivity(new Intent(MainActivity.this, ClientActivity.class));
 		}
-		
+
 	};
-	
+
 	View.OnClickListener gatewayListener = new View.OnClickListener() {
 
 		public void onClick(View v) {
 			startActivity(new Intent(MainActivity.this, GatewayActivity.class));
 		}
-		
+
 	};
-	
-	private class KeyGenTask extends AsyncTask<MSSCryptoProvider, Integer, Void> {
+
+	private class KeyGenTask extends
+			AsyncTask<MSSCryptoProvider, Integer, Void> {
 
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			findViewById(R.id.home_spinner).setVisibility(View.INVISIBLE);
 			startActivity(new Intent(MainActivity.this, ClientActivity.class));
 		}
-		
+
 		protected Void doInBackground(MSSCryptoProvider... params) {
 			MSSCryptoProvider mss = params[0];
 			mss.keyGen();
 			return null;
 		}
 
-
 	}
-	
+
 	View.OnClickListener benchmarkListener = new View.OnClickListener() {
 
 		public void onClick(View v) {
 			startActivity(new Intent(MainActivity.this, BenchmarkActivity.class));
 		}
-		
+
 	};
-	
+
 	/*
 	 * End of the modified area
 	 */
