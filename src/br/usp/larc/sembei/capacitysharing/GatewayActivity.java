@@ -19,79 +19,41 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.content.Context;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
+import br.usp.larc.sembei.capacitysharing.bluetooth.DeviceListActivity;
 
-public class GatewayActivity extends Activity {
+public class GatewayActivity extends SupplicantActivity {
+    
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_gateway);
-
-		configureWebView();
-		setSearchListener();
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		super.onCreate(savedInstanceState);
 	}
-
+	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.gateway, menu);
-		return true;
+	protected void onStart() {
+		super.onStart();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+	 @Override
+     public synchronized void onResume() {
+        super.onResume();
+     }
 
-	private void setSearchListener(){
-		SearchView searchView = (SearchView) findViewById(R.id.url_bar);
-		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-				makeHttpRequest(query);
-				return false;
-			}
-
-			@Override
-			public boolean onQueryTextChange(String newText) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-		});
-	}
-	private void configureWebView() {
-
-		WebView webview = (WebView) findViewById(R.id.webView);
-		WebSettings webSettings = webview.getSettings();
-		webSettings.setJavaScriptEnabled(true);
-		webview.setWebViewClient(new MyWebViewClient());
-	}
-
-	private void makeHttpRequest(String url){
+	protected void makeHttpRequest(String url){
 		new RequestTask().execute(url);
 	}
 
@@ -199,21 +161,54 @@ public class GatewayActivity extends Activity {
 		}
 	}
 
-	private class MyWebViewClient extends WebViewClient {
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			makeHttpRequest(url);
-			return true;
-		}
+	@Override
+    public synchronized void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+	public void onDestroy() {
+    	super.onDestroy();
+    }
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.gateway, menu);
+		return true;
 	}
 
-  private void hideKeyboard() {
-	    InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-	    // check if no view has focus:
-	    View view = this.getCurrentFocus();
-	    if (view != null) {
-	        inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-	    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		} else if (id == R.id.action_bluetooth) {
+	        // Get local Bluetooth adapter
+	        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			// If the adapter is null, then Bluetooth is not supported
+	        if (mBluetoothAdapter == null) {
+	            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+	        }
+	        if (!mBluetoothAdapter.isEnabled()) {
+	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+	        }
+			return true;
+		}else if(id == R.id.scan){
+           // Launch the DeviceListActivity to see devices and do scan
+           Intent serverIntent = new Intent(this, DeviceListActivity.class);
+           startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+           return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }
