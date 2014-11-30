@@ -14,6 +14,7 @@ public class ClientActivity extends SupplicantActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_client);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 		super.onCreate(savedInstanceState);
 	}
 

@@ -14,15 +14,17 @@
     <string name="benchmark_title_verify">Verification</string>
     <string name="benchmark_start_button">Start</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_client">Navigation</string>
+    <string name="title_activity_client">Client</string>
     <string name="button_register">Register</string>
-    <string name="title_activity_gateway">GatewayActivity</string>
+    <string name="title_activity_gateway">Gateway</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_searchable">SearchableActivity</string>
     <string name="loading">loading...</string>
     <string name="online">online</string>
     <string name="AAAS_URL">http://192.168.2.111:3000/redirect</string>
-    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_register">Account activation</string>
+    <string name="title_activity_supplicant">-</string>
+    <string name="large_text_register">Código de ativação</string>
 
     <!-- BluetoothChat -->
     <string name="send">Send</string>
@@ -45,7 +47,5 @@
     <string name="action_bluetooth">Enable bluetooth</string>
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
-    <string name="title_activity_supplicant">SupplicantActivity</string>
-    <string name="large_text_register">Código de ativação</string>
 
 </resources>

@@ -51,6 +51,12 @@ public class MainActivity extends Activity {
 	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
+	protected static final String GATEWAY = "gateway";
+
+	protected static final String CLIENT = "client";
+
+	protected static final String SUPPLICANT = "supplicant";
+
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
@@ -221,21 +227,15 @@ public class MainActivity extends Activity {
 		public void onClick(View view) {
 			MSSCryptoProvider mss = new MSSCryptoProvider(MainActivity.this);
 			if (!mss.hasKeyPair()) {
-				findViewById(R.id.home_spinner).setVisibility(View.VISIBLE);
-				Toast toast = Toast.makeText(
-						MainActivity.this.getApplicationContext(),
-						"Generating Key Pair", Toast.LENGTH_LONG);
-				toast.show();
-				new KeyGenTask().execute(mss);
-			} else {
 				Intent clientRegisterIntent = new Intent(MainActivity.this,
 						RegisterActivity.class);
-				//Bundle extras = clientRegisterIntent.getExtras();
-				//extras.putInt("nextActivity", ClientActivity.class);
-				//startActivity(clientRegisterIntent);
-				
-				// TODO startActivity(new Intent(MainActivity.this,
-				// ClientActivity.class));
+				Bundle extras = new Bundle();
+				extras.putString(SUPPLICANT, CLIENT);
+				clientRegisterIntent.putExtras(extras);
+				startActivity(clientRegisterIntent);
+			} else {
+				startActivity(new Intent(MainActivity.this,
+						ClientActivity.class));
 			}
 		}
 
@@ -244,27 +244,19 @@ public class MainActivity extends Activity {
 	View.OnClickListener gatewayListener = new View.OnClickListener() {
 
 		public void onClick(View v) {
-			startActivity(new Intent(MainActivity.this, GatewayActivity.class));
+			MSSCryptoProvider mss = new MSSCryptoProvider(MainActivity.this);
+			if (!mss.hasKeyPair()) {
+				Intent gatewayRegisterIntent = new Intent(MainActivity.this,
+						RegisterActivity.class);
+				Bundle extras = new Bundle();
+				extras.putString(SUPPLICANT, GATEWAY);
+				gatewayRegisterIntent.putExtras(extras);
+				startActivity(gatewayRegisterIntent);
+			} else {
+				startActivity(new Intent(MainActivity.this, GatewayActivity.class));
+			}			
 		}
-
 	};
-
-	private class KeyGenTask extends
-			AsyncTask<MSSCryptoProvider, Integer, Void> {
-
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			findViewById(R.id.home_spinner).setVisibility(View.INVISIBLE);
-			startActivity(new Intent(MainActivity.this, ClientActivity.class));
-		}
-
-		protected Void doInBackground(MSSCryptoProvider... params) {
-			MSSCryptoProvider mss = params[0];
-			mss.keyGen();
-			return null;
-		}
-
-	}
 
 	View.OnClickListener benchmarkListener = new View.OnClickListener() {
 
