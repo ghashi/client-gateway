@@ -37,12 +37,15 @@ public class MSSCryptoProvider extends CryptoProvider {
 	@Override
 	public String sign(String message) {
 		String skey = fileManager.readFile(skeyFile);
-		Log.d("CASH", skey);
-		String[] sigState = MSS.sign(message, skey);
+		Log.d("CASH", "skey: " + skey);
+		Log.d("CASH", "message: " + message);
+		String digest = get_hash(message);
+		Log.d("CASH", "digest: " + digest);
+		String[] sigState = MSS.sign(digest, skey);
 		String signature = sigState[0];
 		skey = sigState[1];
-		Log.d("CASH", signature);
-		Log.d("CASH", skey);
+		Log.d("CASH", "signature: " + signature);
+		Log.d("CASH", "skey: " + skey);
 		fileManager.writeToFile(skeyFile, skey);
 		return signature;
 	}
@@ -57,8 +60,14 @@ public class MSSCryptoProvider extends CryptoProvider {
 
 	@Override
 	public boolean verify(String message, String signature, String pkey) {
-		return MSS.verify(message, signature, pkey);
+		String digest = get_hash(message);
+		Log.d("CASH", "digest: " + digest);
+		return MSS.verify(digest, signature, pkey);
 	}
+	
+	public native String generateCSR(int id, String cname, String authKey, String tokenKey, String mssKey);
+	public native boolean readCSR(String csr, int id, String cname, String authKey, String tokenKey, String mssKey);
+	public native boolean readCert(String certificate, int id, String cname, String time, String valid, String authKey, String tokenKey, String certSignature, String caPkey);
 	
 	// Benchmark
 	public static native long keyGen(int mark);
