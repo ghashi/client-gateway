@@ -46,6 +46,14 @@ public class MSSCryptoProvider extends CryptoProvider {
 		fileManager.writeToFile(skeyFile, skey);
 		return signature;
 	}
+	
+	public String getPkey(){
+		return fileManager.readFile(pkeyFile);
+	}
+	
+	public String getSkey(){
+		return fileManager.readFile(skeyFile);
+	}
 
 	@Override
 	public boolean verify(String message, String signature, String pkey) {

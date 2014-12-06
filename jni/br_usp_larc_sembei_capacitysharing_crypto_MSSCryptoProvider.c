@@ -103,3 +103,28 @@ JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCrypto
 
         return 1000*(float)elapsed/CLOCKS_PER_SEC;
 }
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    generateCSR
+ * Signature: (ILjava/lang/String;[B[B[B)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_generateCSR
+  (JNIEnv *, jobject, jint, jstring, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    readCSR
+ * Signature: (Ljava/lang/String;ILjava/lang/String;[B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_readCSR
+  (JNIEnv *, jobject, jstring, jint, jstring, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    readCert
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_readCert
+  (JNIEnv *, jobject, jstring, jint, jstring, jstring, jstring, jstring, jstring, jstring, jstring);
+

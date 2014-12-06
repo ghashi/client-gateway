@@ -43,4 +43,8 @@ public abstract class CryptoProvider {
 	public native String asymmetric_encrypt(String plaintext, String pkey);
 	public native String asymmetric_decrypt(String ciphertext, String skey);
 	
+	public native String generateCSR(int id, String cname, String authKey, String tokenKey, String mssKey);
+	public native boolean readCSR(String csr, int id, String cname, String authKey, String tokenKey, String mssKey);
+	public native boolean readCert(String certificate, int id, String cname, String time, String valid, String authKey, String tokenKey, String certSignature, String caPkey);
+	
 }

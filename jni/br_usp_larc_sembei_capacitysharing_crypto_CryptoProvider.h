@@ -55,6 +55,30 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1decrypt
   (JNIEnv *, jobject, jstring, jstring);
 
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    generateCSR
+ * Signature: (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_generateCSR
+  (JNIEnv *, jobject, jint, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    readCSR
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_readCSR
+  (JNIEnv *, jobject, jstring, jint, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    readCert
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_readCert
+  (JNIEnv *, jobject, jstring, jint, jstring, jstring, jstring, jstring, jstring, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif

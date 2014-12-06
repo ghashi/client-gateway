@@ -39,7 +39,7 @@ public class GatewayActivity extends SupplicantActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_gateway);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		super.onCreate(savedInstanceState);
 	}
 	
@@ -118,7 +118,7 @@ public class GatewayActivity extends SupplicantActivity {
 	        HttpResponse response;
 	        String responseString = null;
 	        try {
-	        	HttpPost post = new HttpPost(getString(R.string.AAAS_URL));
+	        	HttpPost post = new HttpPost(getString(R.string.PROXY_URL) + "/redirect");
 
 	        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 	        	addRequestParameters(pairs);
