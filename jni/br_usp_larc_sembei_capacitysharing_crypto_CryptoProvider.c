@@ -25,6 +25,29 @@
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    get_hash
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hash(JNIEnv *jvm, jobject jobj, jstring jmessage) {
+	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
+	unsigned int message_len = (*jvm)->GetStringUTFLength(jvm, jmessage);
+
+        unsigned char buffer[2 * (2 * MSS_SEC_LVL)];
+
+	sponge_hash(message, message_len, buffer, 2 * MSS_SEC_LVL);
+
+
+        base64encode(buffer, 2 * MSS_SEC_LVL, buffer, 2 * (2 * MSS_SEC_LVL));
+        jstring jhash = (*jvm)->NewStringUTF(jvm, buffer);
+
+        (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
+
+	return jhash;
+}
+
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    get_hmac
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
