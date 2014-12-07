@@ -8,12 +8,12 @@ import br.usp.larc.sembei.capacitysharing.MainActivity;
 import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 
 public class MSSCryptoProvider extends CryptoProvider {
-	
+
 	private final String skeyFile = "mss_skey";
 	private final String pkeyFile = "mss_pkey";
 
 	private FileManager fileManager;
-	
+
 	public MSSCryptoProvider(Activity activity) {
 		fileManager = new FileManager(activity);
 	}
@@ -21,7 +21,7 @@ public class MSSCryptoProvider extends CryptoProvider {
 	public boolean hasKeyPair() {
 		return(fileManager.existFile(skeyFile) && fileManager.existFile(pkeyFile));
 	}
-	
+
 	@Override
 	public void keyGen() {
 		byte[] seed = new byte[16];
@@ -49,11 +49,11 @@ public class MSSCryptoProvider extends CryptoProvider {
 		fileManager.writeToFile(skeyFile, skey);
 		return signature;
 	}
-	
+
 	public String getPkey(){
 		return fileManager.readFile(pkeyFile);
 	}
-	
+
 	public String getSkey(){
 		return fileManager.readFile(skeyFile);
 	}
@@ -64,11 +64,11 @@ public class MSSCryptoProvider extends CryptoProvider {
 		Log.d("CASH", "digest: " + digest);
 		return MSS.verify(digest, signature, pkey);
 	}
-	
+
 	public native String generateCSR(int id, String cname, String authKey, String tokenKey, String mssKey);
 	public native boolean readCSR(String csr, int id, String cname, String authKey, String tokenKey, String mssKey);
 	public native boolean readCert(String certificate, int id, String cname, String time, String valid, String authKey, String tokenKey, String certSignature, String caPkey);
-	
+
 	// Benchmark
 	public static native long keyGen(int mark);
 	public static native long sign(int mark);

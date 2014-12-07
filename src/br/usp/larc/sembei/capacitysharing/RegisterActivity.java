@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
+import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -36,6 +37,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class RegisterActivity extends Activity {
+	
+	public static final String CLIENT_ID = "client_id";
+	public static final String GATEWAY_ID = "gateway_id";
 	
 	private String gen_csr;
 	private String gen_hmac;
@@ -118,6 +122,7 @@ public class RegisterActivity extends Activity {
 	private class CsrGenTask extends
 			AsyncTask<Void, Integer, String> {
 
+;
 		private MSSCryptoProvider mss;
 		
 		public CsrGenTask(MSSCryptoProvider mss) {
@@ -149,6 +154,10 @@ public class RegisterActivity extends Activity {
 			System.out.println(		"authKey :"	+			"MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExCg==");
 			System.out.println(		"pKey :"	+			mss.getPkey());
 			System.out.println(		"sKey :"	+			mss.getSkey());
+			
+			String id = ((EditText) findViewById(R.id.user_id_edittext)).getText().toString();
+			registerID(id);
+			
 			String csr = mss.generateCSR(
 					new Integer(((EditText) findViewById(R.id.user_id_edittext)).getText().toString()),
 					((EditText) findViewById(R.id.user_name_edittext)).getText().toString(),
@@ -160,6 +169,18 @@ public class RegisterActivity extends Activity {
 			gen_csr = csr;
 			
 			return csr;
+		}
+
+		private void registerID(String id) {
+			FileManager fileManager = new FileManager(RegisterActivity.this);
+			Bundle extras = getIntent().getExtras();
+			String supplicant = extras.getString(MainActivity.SUPPLICANT);
+			if (supplicant.equals(MainActivity.CLIENT)) {
+				fileManager.writeToFile(CLIENT_ID, id);
+			} else if (supplicant.equals(MainActivity.GATEWAY)) {
+				fileManager.writeToFile(GATEWAY_ID, id);
+
+			}			
 		}
 	}
 	

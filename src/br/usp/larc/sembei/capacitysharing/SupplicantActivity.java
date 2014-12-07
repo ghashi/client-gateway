@@ -47,6 +47,8 @@ public abstract class SupplicantActivity extends Activity {
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
     
+    public int remaining_data = 0;
+    
  // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
         @Override

@@ -15,7 +15,7 @@ public abstract class CryptoProvider {
 	private final int symmetricKeySize = (securityLevel / 8);
 
 	// Hash
-	protected native String get_hash(String message);
+	public native String get_hash(String message);
 	
 	// Digital Signature
 	public abstract void keyGen();
@@ -42,7 +42,7 @@ public abstract class CryptoProvider {
 	public native String symmetric_encrypt(String plaintext, String iv, String key);
 	public native String symmetric_decrypt(String ciphertext, String iv, String key);
 	
-	// Symmetric Encryption
+	// Asymmetric Encryption
 	public native String asymmetric_encrypt(String plaintext, String pkey);
 	public native String asymmetric_decrypt(String ciphertext, String skey);
 
