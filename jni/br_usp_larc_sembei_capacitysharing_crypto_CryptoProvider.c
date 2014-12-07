@@ -151,7 +151,8 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1encrypt(JNIEnv *jvm, jobject jobj, jstring jplaintext, jstring jpkey) {
-	DECODE_IN_B64(plaintext);
+	const char *plaintext = (*jvm)->GetStringUTFChars(jvm, jplaintext, JNI_FALSE);
+	unsigned int plaintext_len = (*jvm)->GetStringUTFLength(jvm, jplaintext);
 	DECODE_IN_B64(pkey);
 
 	unsigned int ciphertext_len = ntru_ciphertext_len();
@@ -164,7 +165,7 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 
 	free(ciphertext);
 
-        RELEASE(plaintext);
+        (*jvm)->ReleaseStringUTFChars(jvm, jplaintext, plaintext);
         RELEASE(pkey);
 	return jciphertext;
 }
