@@ -295,10 +295,11 @@ public class MainActivity extends Activity {
 		String msg = "Test message";
 		mss.keyGen();
 		Log.i("TEST", "mss.getPkey(): " + mss.getPkey());
-		Log.i("TEST", "mss.getSkey(): " + mss.getSkey());
-//		String signature = mss.sign(msg);
-//		Log.i("TEST", "signed_msg: " + signature);
-//		Log.i("TEST", "verify: " + mss.verify(msg, signature, mss.getPkey()));
+		Log.i("TEST", "mss.getSkey() - before: " + mss.getSkey());
+		String signature = mss.sign(msg);
+		Log.i("TEST", "signed_msg: " + signature);
+		Log.i("TEST", "verify: " + mss.verify(msg, signature, mss.getPkey()));
+		Log.i("TEST", "mss.getSkey() - after: " + mss.getSkey());
 
 		/**
 		 * HMAC

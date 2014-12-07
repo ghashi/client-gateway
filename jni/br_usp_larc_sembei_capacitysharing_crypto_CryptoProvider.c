@@ -92,7 +92,6 @@ JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_Crypto
         (*jvm)->ReleaseStringUTFChars(jvm, jtag, tag);
 
         return accepted;
-
 }
 
 /*
