@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,7 +67,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		new TestTask().execute();
+		//new TestTask().execute();
 	}
 
 	@Override
@@ -331,6 +332,17 @@ public class MainActivity extends Activity {
 		 * Hash
 		 */
 		Log.i("TEST", "mss.get_hash: " + mss.get_hash(msg));
+		
+		/**
+		 * CSR
+		 */
+		String csr = mss.generateCSR(
+				1,
+				"Gateway",
+				"MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExCg==",
+				mss.getPkey(),
+				mss.getSkey());
+		Log.i("TEST", "mss.csr: " + csr);
 		
 		return true;
 	}
