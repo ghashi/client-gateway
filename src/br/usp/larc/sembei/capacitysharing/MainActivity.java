@@ -427,6 +427,14 @@ public class MainActivity extends Activity {
 				mss.getSkey());
 		Log.i("TEST", "mss.csr: " + csr);
 		
+		/**
+		 * Certificate
+		 */
+		String certificate = "MTcwMTM3MDA3MSBURVNURSBkbyBDRVJUSUZJQ0FURQAyMDE0MTEyMjE0NDUwMAAyMDE1MTIwODExMjkxOACc0j3+fURQ/VNY0L3U51MD8Wxb/fEsk8pn60F+u1BWWCOTVqDXpp0q/m7o01U71kaoMUOZXtdjxcKkQ331mdUYhgmOJcOnjrlE5dhVmn7PKLLDVbXDJKOnGILGq4NYUqnEtNMwLwTTXOcoEiRY4xi7kCwA4JBswwc=";
+		String pkeyCA = "sAorZL68JTowNcPx0zufZmnWhg0AAAAAsCW+AAAAAADKen8bynp/Gw4tA4DqL4xsfFng9UAOd25RUX57GY56ulUdO+WxplRXQQN2Yw==";
+		Object[] certificateFields = mss.readCert(certificate, pkeyCA);
+		Log.i("TEST", "mss.readCert: " + certificateFields[0]);
+		
 		return true;
 	}
 

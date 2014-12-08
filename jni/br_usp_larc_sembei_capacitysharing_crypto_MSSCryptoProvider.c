@@ -122,7 +122,7 @@ JNIEXPORT jlong JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCrypto
 }
 
 /*
- * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider
  * Method:    generateCSR
  * Signature: (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
@@ -148,62 +148,44 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryp
 }
 
 /*
- * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
- * Method:    readCSR
- * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCSR(JNIEnv *jvm, jobject jobj, jstring jcsr, jint jid, jstring jcname, jstring jtime, jstring jauth_key, jstring jtoken_key, jstring jmss_skey) {
-	unsigned int id;
-	char *cname = (*jvm)->GetStringUTFChars(jvm, jcname, JNI_TRUE);
-	char *time = (*jvm)->GetStringUTFChars(jvm, jtime, JNI_TRUE);
-	unsigned char *auth_key = (*jvm)->GetStringUTFChars(jvm, jauth_key, JNI_TRUE);
-	unsigned char *token_key = (*jvm)->GetStringUTFChars(jvm, jtoken_key, JNI_TRUE);
-	unsigned char *mss_skey = (*jvm)->GetStringUTFChars(jvm, jmss_skey, JNI_TRUE);
-	unsigned char *csr = (*jvm)->GetStringUTFChars(jvm, jcsr, JNI_FALSE);
-
-	unsigned char accept = read_csr(&id, cname, time, auth_key, token_key, mss_skey, csr);
-
-	jid = id;
-
-        (*jvm)->ReleaseStringUTFChars(jvm, jcname, cname);
-        (*jvm)->ReleaseStringUTFChars(jvm, jtime, cname);
-        (*jvm)->ReleaseStringUTFChars(jvm, jauth_key, auth_key);
-        (*jvm)->ReleaseStringUTFChars(jvm, jtoken_key, token_key);
-        (*jvm)->ReleaseStringUTFChars(jvm, jmss_skey, mss_skey);
-        (*jvm)->ReleaseStringUTFChars(jvm, jcsr, csr);
-
-	return accept;
-}
-
-/*
- * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider
  * Method:    readCert
- * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;)[Ljava/lang/Object;
  */
-JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCert(JNIEnv *jvm, jobject jobj, jstring jcertificate, jint jid, jstring jcname, jstring jtime, jstring jvalid, jstring jauth_key, jstring jtoken_key, jstring jcert_signature, jstring jca_pkey) {
-	unsigned int id;
-	char *cname = (*jvm)->GetStringUTFChars(jvm, jcname, JNI_TRUE);
-	char *time = (*jvm)->GetStringUTFChars(jvm, jtime, JNI_TRUE);
-	char *valid = (*jvm)->GetStringUTFChars(jvm, jvalid, JNI_TRUE);
-	unsigned char *auth_key = (*jvm)->GetStringUTFChars(jvm, jauth_key, JNI_TRUE);
-	unsigned char *token_key = (*jvm)->GetStringUTFChars(jvm, jtoken_key, JNI_TRUE);
-	unsigned char *cert_signature = (*jvm)->GetStringUTFChars(jvm, jcert_signature, JNI_TRUE);
-	unsigned char *ca_pkey = (*jvm)->GetStringUTFChars(jvm, jca_pkey, JNI_FALSE);
+JNIEXPORT jobjectArray JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCert(JNIEnv *jvm, jobject job, jstring jcertificate, jstring jca_pkey) {
 	unsigned char *certificate = (*jvm)->GetStringUTFChars(jvm, jcertificate, JNI_FALSE);
+	DECODE_IN_B64(ca_pkey);
+	
+	unsigned int id;
+	char cname[100];
+	char time[TIME_BUFFER_SIZE];
+	char valid[TIME_BUFFER_SIZE];
+	unsigned char auth_key[SMQV_PKEY_SIZE];
+	unsigned char token_key[MSS_PKEY_SIZE];
+	unsigned char signature[ECDSA_SIGNATURE_SIZE];
 
-	unsigned char accept = read_certificate(&id, cname, time, valid, auth_key, token_key, cert_signature, ca_pkey, certificate);
+	unsigned char accept = read_certificate(&id, cname, time, valid, auth_key, token_key, signature, ca_pkey, certificate);
 
-	jid = id;
+	unsigned char buffer_auth_key[2 * SMQV_PKEY_SIZE];
+	unsigned char buffer_token_key[2 * MSS_PKEY_SIZE];
+	unsigned char buffer_signature[2 * ECDSA_SIGNATURE_SIZE];
 
-        (*jvm)->ReleaseStringUTFChars(jvm, jcname, cname);
-        (*jvm)->ReleaseStringUTFChars(jvm, jtime, cname);
-        (*jvm)->ReleaseStringUTFChars(jvm, jvalid, cname);
-        (*jvm)->ReleaseStringUTFChars(jvm, jauth_key, auth_key);
-        (*jvm)->ReleaseStringUTFChars(jvm, jtoken_key, token_key);
-        (*jvm)->ReleaseStringUTFChars(jvm, jcert_signature, cert_signature);
-        (*jvm)->ReleaseStringUTFChars(jvm, jca_pkey, ca_pkey);
+	base64encode(auth_key, SMQV_PKEY_SIZE, buffer_auth_key, 2 * SMQV_PKEY_SIZE);
+	base64encode(token_key, MSS_PKEY_SIZE, buffer_token_key, 2 * MSS_PKEY_SIZE);
+	base64encode(signature, ECDSA_SIGNATURE_SIZE, buffer_signature, 2 * ECDSA_SIGNATURE_SIZE);
+
+	jobjectArray jcertificate_fields = (jobjectArray)(*jvm)->NewObjectArray(jvm, 7, (*jvm)->FindClass(jvm, "java/lang/Object"), NULL);
+
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 0, (*jvm)->NewObject(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), (*jvm)->GetMethodID(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), "<init>", "(I)V"), id)); // http://stackoverflow.com/questions/13877543/how-to-instantiate-a-class-in-jni
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 1, (*jvm)->NewStringUTF(jvm, cname));
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 2, (*jvm)->NewStringUTF(jvm, time));
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 3, (*jvm)->NewStringUTF(jvm, valid));
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 4, (*jvm)->NewStringUTF(jvm, buffer_auth_key));
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 5, (*jvm)->NewStringUTF(jvm, buffer_token_key));
+	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 6, (*jvm)->NewStringUTF(jvm, buffer_signature));
+
         (*jvm)->ReleaseStringUTFChars(jvm, jcertificate, certificate);
+	RELEASE(ca_pkey);
 
-
-	return accept;
+	return jcertificate_fields;
 }

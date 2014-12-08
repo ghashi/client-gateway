@@ -17,19 +17,11 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryp
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider
- * Method:    readCSR
- * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCSR
-  (JNIEnv *, jobject, jstring, jint, jstring, jstring, jstring, jstring);
-
-/*
- * Class:     br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider
  * Method:    readCert
- * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)[Ljava/lang/Object;
  */
-JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCert
-  (JNIEnv *, jobject, jstring, jint, jstring, jstring, jstring, jstring, jstring, jstring, jstring);
+JNIEXPORT jobjectArray JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider_readCert
+  (JNIEnv *, jobject, jstring, jstring);
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_MSSCryptoProvider

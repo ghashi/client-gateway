@@ -66,8 +66,7 @@ public class MSSCryptoProvider extends CryptoProvider {
 	}
 
 	public native String generateCSR(int id, String cname, String authKey, String tokenKey, String mssKey);
-	public native boolean readCSR(String csr, int id, String cname, String authKey, String tokenKey, String mssKey);
-	public native boolean readCert(String certificate, int id, String cname, String time, String valid, String authKey, String tokenKey, String certSignature, String caPkey);
+	public native Object[] readCert(String certificate, String ca_pkey);
 
 	// Benchmark
 	public static native long keyGen(int mark);
