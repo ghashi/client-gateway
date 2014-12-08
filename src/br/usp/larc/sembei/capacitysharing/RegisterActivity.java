@@ -37,10 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class RegisterActivity extends Activity {
-	
+
 	public static final String CLIENT_ID = "client_id";
 	public static final String GATEWAY_ID = "gateway_id";
-	
+	public static final String CLIENT_CERT = "client.cert";
+	public static final String GATEWAY_CERT = "gateway.cert";
+
 	private String gen_csr;
 	private String gen_hmac;
 
@@ -74,7 +76,7 @@ public class RegisterActivity extends Activity {
 						"Please, fill in your activation code", Toast.LENGTH_LONG);
 				toast.show();
 			} else {
-				MSSCryptoProvider mss = new MSSCryptoProvider(RegisterActivity.this);				
+				MSSCryptoProvider mss = new MSSCryptoProvider(RegisterActivity.this);
 				new KeyGenTask(mss).execute();
 			}
 		}
@@ -88,11 +90,11 @@ public class RegisterActivity extends Activity {
 			AsyncTask<Void, Integer, Void> {
 
 		private MSSCryptoProvider mss;
-		
+
 		public KeyGenTask(MSSCryptoProvider mss) {
 			this.mss = mss;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			 findViewById(R.id.home_spinner).setVisibility(View.VISIBLE);
@@ -102,7 +104,7 @@ public class RegisterActivity extends Activity {
 			 toast.show();
 			super.onPreExecute();
 		}
-		
+
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			new CsrGenTask(mss).execute();
@@ -113,7 +115,7 @@ public class RegisterActivity extends Activity {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gera CSR e chama geração de HMAC
 	 * @author guilherme
@@ -124,11 +126,11 @@ public class RegisterActivity extends Activity {
 
 ;
 		private MSSCryptoProvider mss;
-		
+
 		public CsrGenTask(MSSCryptoProvider mss) {
 			this.mss = mss;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			 Toast toast = Toast.makeText(
@@ -137,37 +139,30 @@ public class RegisterActivity extends Activity {
 			 toast.show();
 			super.onPreExecute();
 		}
-		
+
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			
+
 			new HmacGenTask(mss).execute(result);
 		}
 
 		@SuppressLint("UseValueOf")
 		@Override
-		protected String doInBackground(Void... params) {		
-			// TODO trocar os 64 1
-			System.out.println("CSR CSR CSR CSR");
-			System.out.println(		"id :"	+		new Integer(((EditText) findViewById(R.id.user_id_edittext)).getText().toString()));
-			System.out.println(		"cname :"	+			((EditText) findViewById(R.id.user_name_edittext)).getText().toString());
-			System.out.println(		"authKey :"	+			"MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExCg==");
-			System.out.println(		"pKey :"	+			mss.getPkey());
-			System.out.println(		"sKey :"	+			mss.getSkey());
-			
+		protected String doInBackground(Void... params) {
+			// TODO trocar os 64 1 (authkey)
+
 			String id = ((EditText) findViewById(R.id.user_id_edittext)).getText().toString();
 			registerID(id);
-			
+
 			String csr = mss.generateCSR(
-					new Integer(((EditText) findViewById(R.id.user_id_edittext)).getText().toString()),
+					new Integer(id),
 					((EditText) findViewById(R.id.user_name_edittext)).getText().toString(),
 					"MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExCg==",
 					mss.getPkey(),
 					mss.getSkey());
-			
-			System.out.println("csr :"	+csr);
+
 			gen_csr = csr;
-			
+
 			return csr;
 		}
 
@@ -180,10 +175,10 @@ public class RegisterActivity extends Activity {
 			} else if (supplicant.equals(MainActivity.GATEWAY)) {
 				fileManager.writeToFile(GATEWAY_ID, id);
 
-			}			
+			}
 		}
 	}
-	
+
 	/**
 	 * Gera HMAC e chama getCertificate
 	 * @author guilherme
@@ -192,11 +187,11 @@ public class RegisterActivity extends Activity {
 	private class HmacGenTask extends
 			AsyncTask<String, Integer, String> {
 		private MSSCryptoProvider mss;
-		
+
 		public HmacGenTask(MSSCryptoProvider mss) {
 			this.mss = mss;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			 Toast toast = Toast.makeText(
@@ -205,7 +200,7 @@ public class RegisterActivity extends Activity {
 			 toast.show();
 			super.onPreExecute();
 		}
-		
+
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			new RequestTask().execute();
@@ -214,16 +209,16 @@ public class RegisterActivity extends Activity {
 		@Override
 		protected String doInBackground(String... params) {
 			String csr = params[0];
-			
+
 			String hmac = mss.get_hmac(csr,
 					((EditText) findViewById(R.id.activation_code_edittext)).getText().toString());
-			
+
 			gen_hmac = hmac;
-			
+
 			return hmac;
 		}
 	}
-		
+
 	/**
 	 * Obtem Certificate a partir de um Http request
 	 * @author guilherme
@@ -238,24 +233,22 @@ public class RegisterActivity extends Activity {
 			 toast.show();
 			super.onPreExecute();
 		}
-		
+
 	    @Override
 	    protected String doInBackground(Void... params) {
-	    	System.out.println("gen_hmac :"	+gen_hmac);
-	    	System.out.println("gen_csr :"	+gen_csr);
-	    	
+
 	        return makeHttpRequest();
 	    }
 
 	    @Override
 	    protected void onPostExecute(String result) {
 	    	super.onPostExecute(result);
-			try {						
+			try {
 				JSONObject requestJson = new JSONObject(result);
 				String certificate = requestJson.getString("certificate");
 
-				System.out.println("certificate :"	+certificate);
-				
+				registerCertificate(certificate);
+
 				findViewById(R.id.home_spinner).setVisibility(View.INVISIBLE);
 				Bundle extras = getIntent().getExtras();
 				String supplicant = extras.getString(MainActivity.SUPPLICANT);
@@ -292,7 +285,7 @@ public class RegisterActivity extends Activity {
 	        	post.setEntity(new UrlEncodedFormEntity(pairs));
 
 	            response = httpclient.execute(post);
-	            
+
 	            StatusLine statusLine = response.getStatusLine();
 	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
 	                ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -320,7 +313,19 @@ public class RegisterActivity extends Activity {
 			pairs.add(new BasicNameValuePair("csr", gen_csr));
 			pairs.add(new BasicNameValuePair("tag", gen_hmac));
 		}
+
+		private void registerCertificate(String cert) {
+			FileManager fileManager = new FileManager(RegisterActivity.this);
+			Bundle extras = getIntent().getExtras();
+			String supplicant = extras.getString(MainActivity.SUPPLICANT);
+			if (supplicant.equals(MainActivity.CLIENT)) {
+				fileManager.writeToFile(CLIENT_CERT, cert);
+			} else if (supplicant.equals(MainActivity.GATEWAY)) {
+				fileManager.writeToFile(GATEWAY_CERT, cert);
+
+			}
+		}
 	}
-	
-	
+
+
 }

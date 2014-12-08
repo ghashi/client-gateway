@@ -152,12 +152,19 @@ public class GatewayActivity extends SupplicantActivity {
 			// TODO APAGAR
 			System.out.println(mss.asymmetric_decrypt(token, skey));
 			System.out.println("TOKEN:" + token);
-			//sig = mss.sign(token);
-			//System.out.println("SIG:" + sig);
+			sig = mss.sign(token);
+			System.out.println("SIG:" + sig);
+
+			Log.i("TEST", "mss.verify - token: " + token);
+			Log.i("TEST", "mss.verify - sig: " + sig);
+			Log.i("TEST", "mss.verify - pkey: " + mss.getPkey());
+			Log.i("TEST", "mss.verify - " + mss.verify(token, sig, mss.getPkey()));
+
+			Log.i("TEST", "mss.verify " + mss.verify(token, sig, mss.getPkey()));
 			
 			pairs.add(new BasicNameValuePair("id", id));
 			pairs.add(new BasicNameValuePair("token", token));
-			//pairs.add(new BasicNameValuePair("sig", sig));
+			pairs.add(new BasicNameValuePair("sig", sig));
 			pairs.add(new BasicNameValuePair("supplicant", "gateway"));
 		}
 	}

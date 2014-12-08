@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		// DESCOMENTAR PARA TESTAR CRYPTO LIB
 		//new TestTask().execute();
 	}
 
@@ -287,8 +288,6 @@ public class MainActivity extends Activity {
 	private boolean test() {
 	MSSCryptoProvider mss;
 		mss = new MSSCryptoProvider(MainActivity.this);
-
-		int i;
 		
 		/**
 		 * Digital Signature
