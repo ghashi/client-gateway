@@ -272,8 +272,12 @@ public abstract class SupplicantActivity extends Activity {
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
-				sendMessage(query);
-				makeHttpRequest(query);
+		        if (!mBluetoothAdapter.isEnabled()) {
+		            showToastMessage("Please, enable bluetooth");
+		        } else{
+		        	sendMessage(query);
+					makeHttpRequest(query);
+		        }
 				return false;
 			}
 

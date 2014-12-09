@@ -1,13 +1,19 @@
 package br.usp.larc.sembei.capacitysharing;
 
-import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
-import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
-import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
-import br.usp.larc.sembei.capacitysharing.util.SystemUiHider;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import android.R.bool;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,9 +22,10 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
+import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
+import br.usp.larc.sembei.capacitysharing.util.SystemUiHider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -59,6 +66,10 @@ public class MainActivity extends Activity {
 
 	protected static final String SUPPLICANT = "supplicant";
 
+	private static final String NTRU_PKEY = "ntru_pkey";
+
+	private static final String ECDSA_PKEY = "ecdsa_pkey";
+
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
@@ -67,6 +78,16 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		Context context = getApplicationContext();
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, "Getting ntru_pkey and ecdsa_pkey", duration);
+		toast.show();
+		
+		new GetKeysTask("/ntru_pkey", NTRU_PKEY).execute();
+		new GetKeysTask("/ecdsa_pkey", ECDSA_PKEY).execute();
+
+		
 		// DESCOMENTAR PARA TESTAR CRYPTO LIB
 		//new TestTask().execute();
 	}
@@ -284,6 +305,62 @@ public class MainActivity extends Activity {
 			return null;
 		}
 	}
+	
+	private class GetKeysTask extends AsyncTask<Void, String, String> {
+
+		private String url;
+		private String filename;
+		
+		public GetKeysTask(String url, String filename) {
+			this.url = url;
+			this.filename = filename;
+		}
+		
+		@Override
+		protected String doInBackground(Void... arg) {
+			HttpClient httpclient = new DefaultHttpClient();
+	        HttpResponse response;
+	        String responseString = null;
+	        try {
+	        	HttpGet post = new HttpGet(getString(R.string.AAAS_URL) + url);
+
+	            response = httpclient.execute(post);
+
+	            StatusLine statusLine = response.getStatusLine();
+	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+	                ByteArrayOutputStream out = new ByteArrayOutputStream();
+	                response.getEntity().writeTo(out);
+	                out.close();
+	                responseString = out.toString();
+	            } else{
+	                //Closes the connection.
+	                response.getEntity().getContent().close();
+	                throw new IOException(statusLine.getReasonPhrase());
+	            }
+	        } catch (ClientProtocolException e) {
+	        	Log.e("ClientProtocolException", e.getMessage());
+	            //TODO Handle problems..
+	        } catch (IOException e) {
+	        	Log.e("IOException", e.getMessage());
+	            //TODO Handle problems..
+	        }
+	        return responseString;
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			FileManager fileManager = new FileManager(MainActivity.this);
+			fileManager.writeToFile(filename, result);
+			
+			Log.i("CASH_START", filename + ": " + result);
+			
+			Context context = getApplicationContext();
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, filename + " saved!", duration);
+			toast.show();
+		}
+	}
 
 	private boolean test() {
 	MSSCryptoProvider mss;
@@ -346,6 +423,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	
 	/*
 	 * End of the modified area
 	 */

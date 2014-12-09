@@ -93,7 +93,6 @@ public class GatewayActivity extends SupplicantActivity {
             //
         } catch (IOException e) {
         	Log.e("IOException", e.getMessage());
-        	showToastMessage(e.getMessage());
             //
         }
         return responseString;
@@ -119,18 +118,20 @@ public class GatewayActivity extends SupplicantActivity {
 	    	super.onPostExecute(result);
 			try {
 				JSONObject requestJson = new JSONObject(result);
-				JSONObject response = new JSONObject(requestJson.getString("response"));
+				String nonce = requestJson.getString("nonce");
 				String hmac = requestJson.getString("hmac");
-				String remainingData = response.getString("remaining_data");
-				String content = response.getString("content");
 
-				byte[] data = Base64.decode(content, Base64.DEFAULT);
-				String html = new String(data, "UTF-8");
+//				String content = response.getString("content");
+//				byte[] data = Base64.decode(content, Base64.DEFAULT);
+//				String html = new String(data, "UTF-8");
 
+				Log.i("LOGIN", "nonce: " + nonce);
+				Log.i("LOGIN", "hmac: " + hmac);
+				
 				hideKeyboard();
-			} catch (JSONException | UnsupportedEncodingException
-					| NullPointerException e) {
+			} catch (JSONException | NullPointerException e) {
 				// 
+				showToastMessage("Error on the request");
 				e.printStackTrace();
 			}
 	    }
