@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,13 +101,15 @@ public abstract class SupplicantActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	     // If the adapter is null, then Bluetooth is not supported
-	        if (mBluetoothAdapter == null) {
-	            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-	            finish();
-	            return;
-	        }
-			configureWebView();
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth is not available",
+					Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+		setSearchListener();
+		configureWebView();
 	}
 	
 	@Override
@@ -272,6 +275,8 @@ public abstract class SupplicantActivity extends Activity {
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
+				Log.i("CASH", "onQueryTextSubmit: " + query);
+				
 		        if (!mBluetoothAdapter.isEnabled()) {
 		            showToastMessage("Please, enable bluetooth");
 		        } else{

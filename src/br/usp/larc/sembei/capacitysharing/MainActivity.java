@@ -66,9 +66,9 @@ public class MainActivity extends Activity {
 
 	protected static final String SUPPLICANT = "supplicant";
 
-	private static final String NTRU_PKEY = "ntru_pkey";
+	public static final String NTRU_PKEY = "ntru_pkey";
 
-	private static final String ECDSA_PKEY = "ecdsa_pkey";
+	public static final String ECDSA_PKEY = "ecdsa_pkey";
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 
 		
 		// DESCOMENTAR PARA TESTAR CRYPTO LIB
-		//new TestTask().execute();
+//		new TestTask().execute();
 	}
 
 	@Override
@@ -350,15 +350,21 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			FileManager fileManager = new FileManager(MainActivity.this);
-			fileManager.writeToFile(filename, result);
+			try {
+				FileManager fileManager = new FileManager(MainActivity.this);
+				fileManager.writeToFile(filename, result);
+				
+				Log.i("CASH_START", filename + ": " + result);
+				
+				Context context = getApplicationContext();
+				int duration = Toast.LENGTH_SHORT;
+				Toast toast = Toast.makeText(context, filename + " saved!", duration);
+				toast.show();
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
 			
-			Log.i("CASH_START", filename + ": " + result);
-			
-			Context context = getApplicationContext();
-			int duration = Toast.LENGTH_SHORT;
-			Toast toast = Toast.makeText(context, filename + " saved!", duration);
-			toast.show();
 		}
 	}
 
@@ -382,6 +388,7 @@ public class MainActivity extends Activity {
 		 * HMAC
 		 */
 		String key = mss.symmetric_keyGen();
+		Log.i("TEST", "session_key: " + key);
 		String hmac = mss.get_hmac(msg, key);
 		Log.i("TEST", "mss.verify_hmac: " + mss.verify_hmac(msg, key, hmac));
 		
