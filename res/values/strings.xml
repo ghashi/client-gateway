@@ -54,8 +54,8 @@
     <string name="title_activity_searchable">SearchableActivity</string>
     <string name="loading">loading...</string>
     <string name="online">online</string>
-    <string name="AAAS_URL">http://192.168.0.15:3001</string>
-     <string name="PROXY_URL">http://192.168.0.15:3000</string>
+    <string name="AAAS_URL">http://192.168.1.124:3001</string>
+     <string name="PROXY_URL">http://192.168.1.124:3000</string>
     <string name="title_activity_supplicant">-</string>
 
 </resources>

@@ -200,14 +200,13 @@ public class GatewayActivity extends SupplicantActivity {
 			Log.i("CASH_CHECKLOGIN", "hmac: " + hmac);
 
 	    	Log.i("CASH_CHECKLOGIN", String.valueOf(mss.verify_hmac(nonce, SESSION_KEY, hmac)));
-// TODO Apagar comentarios abaixo (if-else) quando verify_hmac estiver corrigido
-//			if (mss.verify_hmac(nonce, SESSION_KEY, hmac)) {
+			if (mss.verify_hmac(nonce, SESSION_KEY, hmac)) {
 				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 				addRequestParameters(pairs);
 				return makePostHttpRequest("/checklogin", pairs);
-//			} else{
-//				return null;
-//			}
+			} else{
+				return null;
+			}
 	    }
 
 	    @Override
@@ -259,8 +258,13 @@ public class GatewayActivity extends SupplicantActivity {
 			
 			String encrypted_nonce = mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY);
 
+			Log.i("CASH", "CHECKLOGIN - ENCRYPTED NONCE - " + encrypted_nonce);
+			Log.i("CASH", "CHECKLOGIN - DECRYPTED NONCE TEST - " + mss.symmetric_decrypt(encrypted_nonce, encoded_iv, SESSION_KEY));
+			
 			pairs.add(new BasicNameValuePair("id", id));
 			pairs.add(new BasicNameValuePair("nonce", encrypted_nonce));
+			Log.i("CASH", "NICE TO KNOW - ENCRYPTED NONCE - " + mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY));
+			Log.i("CASH", "NICE TO KNOW - ENCRYPTED NONCE - " + mss.symmetric_encrypt(String.valueOf(new_nonce - 1) , encoded_iv, SESSION_KEY));
 			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_nonce, SESSION_KEY)));
 		}
 	}
