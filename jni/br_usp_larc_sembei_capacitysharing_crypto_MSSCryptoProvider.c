@@ -164,25 +164,34 @@ JNIEXPORT jobjectArray JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MS
 	unsigned char token_key[MSS_PKEY_SIZE];
 	unsigned char signature[ECDSA_SIGNATURE_SIZE];
 
-	unsigned char accept = read_certificate(&id, cname, time, valid, auth_key, token_key, signature, ca_pkey, certificate);
+	unsigned char accepted = read_certificate(&id, cname, time, valid, auth_key, token_key, signature, ca_pkey, certificate);
 
-	unsigned char buffer_auth_key[2 * SMQV_PKEY_SIZE];
-	unsigned char buffer_token_key[2 * MSS_PKEY_SIZE];
-	unsigned char buffer_signature[2 * ECDSA_SIGNATURE_SIZE];
+	jobjectArray jcertificate_fields;
+	if(accepted) {
+		jcertificate_fields = (jobjectArray)(*jvm)->NewObjectArray(jvm, 8, (*jvm)->FindClass(jvm, "java/lang/Object"), NULL);
 
-	base64encode(auth_key, SMQV_PKEY_SIZE, buffer_auth_key, 2 * SMQV_PKEY_SIZE);
-	base64encode(token_key, MSS_PKEY_SIZE, buffer_token_key, 2 * MSS_PKEY_SIZE);
-	base64encode(signature, ECDSA_SIGNATURE_SIZE, buffer_signature, 2 * ECDSA_SIGNATURE_SIZE);
+		unsigned char buffer_auth_key[2 * SMQV_PKEY_SIZE];
+		unsigned char buffer_token_key[2 * MSS_PKEY_SIZE];
+		unsigned char buffer_signature[2 * ECDSA_SIGNATURE_SIZE];
 
-	jobjectArray jcertificate_fields = (jobjectArray)(*jvm)->NewObjectArray(jvm, 7, (*jvm)->FindClass(jvm, "java/lang/Object"), NULL);
+		base64encode(auth_key, SMQV_PKEY_SIZE, buffer_auth_key, 2 * SMQV_PKEY_SIZE);
+		base64encode(token_key, MSS_PKEY_SIZE, buffer_token_key, 2 * MSS_PKEY_SIZE);
+		base64encode(signature, ECDSA_SIGNATURE_SIZE, buffer_signature, 2 * ECDSA_SIGNATURE_SIZE);
 
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 0, (*jvm)->NewObject(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), (*jvm)->GetMethodID(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), "<init>", "(I)V"), id)); // http://stackoverflow.com/questions/13877543/how-to-instantiate-a-class-in-jni
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 1, (*jvm)->NewStringUTF(jvm, cname));
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 2, (*jvm)->NewStringUTF(jvm, time));
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 3, (*jvm)->NewStringUTF(jvm, valid));
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 4, (*jvm)->NewStringUTF(jvm, buffer_auth_key));
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 5, (*jvm)->NewStringUTF(jvm, buffer_token_key));
-	(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 6, (*jvm)->NewStringUTF(jvm, buffer_signature));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 0, (*jvm)->NewObject(jvm, (*jvm)->FindClass(jvm, "java/lang/Boolean"), (*jvm)->GetMethodID(jvm, (*jvm)->FindClass(jvm, "java/lang/Boolean"), "<init>", "(Z)V"), JNI_TRUE));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 1, (*jvm)->NewObject(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), (*jvm)->GetMethodID(jvm, (*jvm)->FindClass(jvm, "java/lang/Integer"), "<init>", "(I)V"), id)); // http://stackoverflow.com/questions/13877543/how-to-instantiate-a-class-in-jni
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 2, (*jvm)->NewStringUTF(jvm, cname));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 3, (*jvm)->NewStringUTF(jvm, time));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 4, (*jvm)->NewStringUTF(jvm, valid));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 5, (*jvm)->NewStringUTF(jvm, buffer_auth_key));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 6, (*jvm)->NewStringUTF(jvm, buffer_token_key));
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 7, (*jvm)->NewStringUTF(jvm, buffer_signature));
+	}
+	else {
+		jcertificate_fields = (jobjectArray)(*jvm)->NewObjectArray(jvm, 1, (*jvm)->FindClass(jvm, "java/lang/Object"), NULL);
+
+		(*jvm)->SetObjectArrayElement(jvm, jcertificate_fields, 0, (*jvm)->NewObject(jvm, (*jvm)->FindClass(jvm, "java/lang/Boolean"), (*jvm)->GetMethodID(jvm, (*jvm)->FindClass(jvm, "java/lang/Boolean"), "<init>", "(Z)V"), JNI_FALSE));
+	}
 
         (*jvm)->ReleaseStringUTFChars(jvm, jcertificate, certificate);
 	RELEASE(ca_pkey);
