@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -22,32 +21,36 @@ import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.location.Criteria;
-import android.media.MediaCodec.CryptoException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import br.usp.larc.sembei.capacitysharing.bluetooth.BluetoothService;
 import br.usp.larc.sembei.capacitysharing.bluetooth.DeviceListActivity;
-import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
 import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
 import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 
 public class GatewayActivity extends SupplicantActivity {
 
 	private MSSCryptoProvider mss;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_gateway);
 		mss = new MSSCryptoProvider(GatewayActivity.this);				
 		super.onCreate(savedInstanceState);
+		
+		SearchView sw = ((SearchView) findViewById(R.id.url_bar));
+		sw.setQuery("http://www.uol.com.br", false);
 	}
 	
 	@Override
@@ -62,11 +65,11 @@ public class GatewayActivity extends SupplicantActivity {
 
 	protected void makeHttpRequest(String url){
 		System.out.println("HAHAHAHA");
-		System.out.println(remaining_data);
-		if (remaining_data > 0) {
+		System.out.println(getRemainingData());
+		if (getRemainingData() > 0) {
 			new RequestTask(url).execute();			
 		} else {
-			new LoginTask().execute();
+			new LoginTask().execute(url);
 		}
 	}
 	
@@ -102,7 +105,9 @@ public class GatewayActivity extends SupplicantActivity {
         return responseString;
 	}
 
-	private class LoginTask extends AsyncTask<Void, String, String>{
+	private class LoginTask extends AsyncTask<String, String, String>{
+		
+		private String next_url;
 
 		@Override
 		protected void onPreExecute() {
@@ -111,7 +116,8 @@ public class GatewayActivity extends SupplicantActivity {
 		}
 
 	    @Override
-	    protected String doInBackground(Void... uri) {
+	    protected String doInBackground(String... url) {
+	    	next_url = url[0];
 	    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         	addRequestParameters(pairs);
 	        return makePostHttpRequest("/login", pairs);
@@ -128,7 +134,7 @@ public class GatewayActivity extends SupplicantActivity {
 				Log.i("LOGIN", "nonce: " + nonce);
 				Log.i("LOGIN", "hmac: " + hmac);
 				
-				new CheckloginTask(hmac, nonce).execute();
+				new CheckloginTask(hmac, nonce).execute(next_url);
 				
 				hideKeyboard();
 			} catch (JSONException | NullPointerException e) {
@@ -175,10 +181,11 @@ public class GatewayActivity extends SupplicantActivity {
 	private class CheckloginTask extends AsyncTask<String, String, String>{
 		// TODO fix "session_key"
 		public static final String SESSION_KEY = "UPB5iiqKPo37pi0whIwr/g==";
-		
+
 		private String id;
 		private String hmac;
 		private String nonce;
+		private String next_url;
 
 		public CheckloginTask(String hmac, String nonce) {
 			FileManager fileManager = new FileManager(GatewayActivity.this);
@@ -195,6 +202,8 @@ public class GatewayActivity extends SupplicantActivity {
 
 	    @Override
 	    protected String doInBackground(String... arg) {
+	    	next_url = arg[0];
+	    	
 			Log.i("CASH_CHECKLOGIN", "nonce: " + nonce);
 			Log.i("CASH_CHECKLOGIN", "SESSION_KEY: " + SESSION_KEY);
 			Log.i("CASH_CHECKLOGIN", "hmac: " + hmac);
@@ -222,14 +231,25 @@ public class GatewayActivity extends SupplicantActivity {
 				
 		    	Log.i("CASH", "verify_hmac: " + String.valueOf(mss.verify_hmac(checklogin, SESSION_KEY, hmac)));
 		    	
-		    	// TODO replace with real IV
-				String encoded_iv;
-				byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);			
-				
-				String decrypted_checklogin = mss.symmetric_decrypt(checklogin, encoded_iv, SESSION_KEY);
-		    	Log.i("CASH", "decrypt checklogin: " + decrypted_checklogin);
-				
+		    	if (mss.verify_hmac(checklogin, SESSION_KEY, hmac)) {
+		    		// TODO replace with real IV
+					String encoded_iv;
+					byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+					encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);			
+					
+					String decrypted_checklogin = mss.symmetric_decrypt(checklogin, encoded_iv, SESSION_KEY);
+					Log.i("CASH", "decrypt checklogin: " + decrypted_checklogin);
+					if (decrypted_checklogin.equals(HANDSHAKE_OK)) {
+						showToastMessage("CheckLogin successful!");
+						updateRemainingData(REMAINING_DATA);
+						new RequestTask(next_url).execute();			
+
+					} else{
+						showToastMessage("CheckLogin failed: " + HANDSHAKE_FAILED);
+					}
+				}else{
+					showToastMessage("CheckLogin failed: can't verify hmac");
+				}
 				hideKeyboard();
 			} catch (JSONException | NullPointerException e) {
 				// 
@@ -238,6 +258,7 @@ public class GatewayActivity extends SupplicantActivity {
 			}
 	    }
 
+		
 		private void addRequestParameters(List<NameValuePair> pairs) {
 			// TODO replace with real IV
 			String encoded_iv;
@@ -301,12 +322,18 @@ public class GatewayActivity extends SupplicantActivity {
 				updateStatus(R.string.online);
 
 				JSONObject requestJson = new JSONObject(result);
-				JSONObject response = new JSONObject(requestJson.getString("response"));
+				// TODO replace with real IV
+				String encoded_iv;
+				byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);	
+				String decrypted_response = mss.symmetric_decrypt(requestJson.getString("response"), encoded_iv, CheckloginTask.SESSION_KEY);
+				
+				JSONObject response = new JSONObject(decrypted_response);
 				String hmac = requestJson.getString("hmac");
 				String remainingData = response.getString("remaining_data");
 				String content = response.getString("content");
 
-				writeRemainingData(remainingData);
+				updateRemainingData(Integer.valueOf(remainingData));
 				
 				byte[] data = Base64.decode(content, Base64.DEFAULT);
 				String html = new String(data, "UTF-8");
@@ -338,22 +365,35 @@ public class GatewayActivity extends SupplicantActivity {
 
 		private void addRequestParameters(List<NameValuePair> pairs) {
 			pairs.add(new BasicNameValuePair("id", id));
-			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(url, CheckloginTask.SESSION_KEY)));
-			// TODO: create JSON request : <TEXT> (	url: <TEXT>, method: "get" | “post”,  params: <JSON> )
-			pairs.add(new BasicNameValuePair("request", "XY5/3S5Zs8vrwL+8+uSKBVx4q9u3heOdAUdyKLpyARzNdC3vu9UEF3Fzpj+7aFq+2vHid9YbzpD4YedjCVaneSS/KPh1m47pP5/B4os5GmZqm+85+dG8uk5WKZjQx9eM"));
+
+			JSONObject request = new JSONObject();
+			try {
+				request.put("url", url);
+				request.put("method", "get");
+				request.put("params", "");
+			} catch (JSONException e) {
+			    // TODO Auto-generated catch block
+			    e.printStackTrace();
+			}
+			
+	    	// TODO replace with real IV
+			String encoded_iv;
+			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);		
+			
+			String encrypted_request = mss.symmetric_encrypt(request.toString(), encoded_iv, CheckloginTask.SESSION_KEY);
+			
+			pairs.add(new BasicNameValuePair("request", encrypted_request));
+			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_request, CheckloginTask.SESSION_KEY)));
 		}
 
-		private void writeRemainingData(String id) {
-			FileManager fileManager = new FileManager(GatewayActivity.this);
-			Bundle extras = getIntent().getExtras();
-			String supplicant = extras.getString(MainActivity.SUPPLICANT);
-			if (supplicant.equals(MainActivity.CLIENT)) {
-				fileManager.writeToFile(RegisterActivity.CLIENT_ID, id);
-			} else if (supplicant.equals(MainActivity.GATEWAY)) {
-				fileManager.writeToFile(RegisterActivity.GATEWAY_ID, id);
-
-			}			
-		}
+		
+	}
+	
+	private void updateRemainingData(int remainingData) {
+		setRemainingData(remainingData);	
+		TextView tv = (TextView) findViewById(R.id.remaining_data);
+		tv.setText(String.valueOf(getRemainingData()));
 	}
 
 	@Override
@@ -398,12 +438,12 @@ public class GatewayActivity extends SupplicantActivity {
 	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 	        }
 			return true;
-		}else if(id == R.id.scan){
-           // Launch the DeviceListActivity to see devices and do scan
-           Intent serverIntent = new Intent(this, DeviceListActivity.class);
-           startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-           return true;
 		}
+		else if(id == R.id.discoverable){
+           // Ensure this device is discoverable by others
+           ensureDiscoverable();
+           return true;
+       }
 		return super.onOptionsItemSelected(item);
 	}
 }

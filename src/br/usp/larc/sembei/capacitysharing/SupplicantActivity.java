@@ -48,7 +48,11 @@ public abstract class SupplicantActivity extends Activity {
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
     
-    public int remaining_data = 0;
+    public static final String HANDSHAKE_OK = "HANDSHAKE_OK" ;
+    public static final String HANDSHAKE_FAILED = "HANDSHAKE_FAILED" ;
+    public static final int REMAINING_DATA = 10000000 ;
+    
+    private int remainingData = 0;
     
  // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
@@ -292,5 +296,13 @@ public abstract class SupplicantActivity extends Activity {
 				return false;
 			}
 		});
+	}
+
+	public int getRemainingData() {
+		return remainingData;
+	}
+
+	public void setRemainingData(int remainingData) {
+		this.remainingData = remainingData;
 	}
 }
