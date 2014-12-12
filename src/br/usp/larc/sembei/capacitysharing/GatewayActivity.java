@@ -41,18 +41,18 @@ import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 public class GatewayActivity extends SupplicantActivity {
 
 	private MSSCryptoProvider mss;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
 		setContentView(R.layout.activity_gateway);
-		mss = new MSSCryptoProvider(GatewayActivity.this);				
+		mss = new MSSCryptoProvider(GatewayActivity.this);
 		super.onCreate(savedInstanceState);
-		
+
 		SearchView sw = ((SearchView) findViewById(R.id.url_bar));
 		sw.setQuery("http://www.uol.com.br", false);
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -64,15 +64,16 @@ public class GatewayActivity extends SupplicantActivity {
      }
 
 	protected void makeHttpRequest(String url){
-		System.out.println("HAHAHAHA");
-		System.out.println(getRemainingData());
+		Log.i("CASH", "GatewayActivity.makeHttpRequest " +
+				"remainingData="+getRemainingData()+
+				" url="+url);
 		if (getRemainingData() > 0) {
-			new RequestTask(url).execute();			
+			new RequestTask(url).execute();
 		} else {
 			new LoginTask().execute(url);
 		}
 	}
-	
+
 	private String makePostHttpRequest(String uri, List<NameValuePair> pairs) {
 		HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
@@ -80,7 +81,7 @@ public class GatewayActivity extends SupplicantActivity {
         try {
         	HttpPost post = new HttpPost(getString(R.string.PROXY_URL) + uri);
 
-        	
+
         	post.setEntity(new UrlEncodedFormEntity(pairs));
 
             response = httpclient.execute(post);
@@ -106,7 +107,7 @@ public class GatewayActivity extends SupplicantActivity {
 	}
 
 	private class LoginTask extends AsyncTask<String, String, String>{
-		
+
 		private String next_url;
 
 		@Override
@@ -131,14 +132,14 @@ public class GatewayActivity extends SupplicantActivity {
 				String nonce = requestJson.getString("nonce");
 				String hmac = requestJson.getString("hmac");
 
-				Log.i("LOGIN", "nonce: " + nonce);
-				Log.i("LOGIN", "hmac: " + hmac);
-				
+				Log.i("CASH", "LoginTask.onPostExecute nonce=" + nonce + "\n" +
+						"hmac=" + hmac+ "\n");
+
 				new CheckloginTask(hmac, nonce).execute(next_url);
-				
+
 				hideKeyboard();
 			} catch (JSONException | NullPointerException e) {
-				// 
+				//
 				showToastMessage("Error on the request");
 				e.printStackTrace();
 			}
@@ -149,29 +150,23 @@ public class GatewayActivity extends SupplicantActivity {
 			//		token: <TEXT> 20 bytes // encripto NTRU //id, counter, session_key
 			//		sig: <TEXT> // assinar ciphertext do token
 			//		supplicant: (‘client’ | ‘gateway’)
-			// TODO 
+			// TODO
 			FileManager fileManager = new FileManager(GatewayActivity.this);
 			String id = fileManager.readFile(RegisterActivity.GATEWAY_ID);
 			String token = "iiiiiiiiiiiiiiiiiiii";
 			String pkey = fileManager.readFile(MainActivity.NTRU_PKEY);
 			String skey = "AAgAZQI3ADcA0QECArgBHQCuAa8BNAIiADgCtwHKABIALgAVAcsApgAnAmwBqQDCACYC8wDFAXoBNgBLAhoA3ACZATYCBgE0ACgAoAHYAJYBTgEOADABlgBgARgAagEZAZkAaQHdAZcB2gAJASMBcwCJAOMAzQAQmLUCAAAAAC0AAAAAAAAAAQAAAAAAAAAgAAAA/38AABCYtQIAAAAAYF8F/f9/AABgAgAAAAAAACAAAAAAAAAAwFkF/f9/AABQWQX9/38AAIpsky/5fwAALQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAWD0oBgAAAAAMvaQAAAAAADASDwMAAAAAAQAAAAAAAAAIPSgGAAAAAKBaBf3/fwAAMBIPAwAAAAABAAAAAAAAAGg15AQAAAAAcDHkBAAAAADnkpMv+X8AADASDwMAAAAA8FwF/f9/AAAuAAAAAAAAAMjtki/5fwAAgFsF/f9/AAAgAAAAAAAAAAAAAAAAAAAAAAAAAP9/AAAIPSgGAAAAAHGgky/5fwAA4LjsA5gBAABgWgX9/38AAC0AAAAAAAAAAQAAAAAAAAAgAAAA/38AACAAAAD/fwAAwFoF/f9/AABQWgX9/38AACAAAAAAAAAA4FoF/f9/AABwWgX9/38AAAx4QAIAAAAAJwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAqDXkBAAAAAAAAAAAAAAAAKg15AQAAAAAAAAAAAAAAADgNeQEAAAAAAAAAAAAAAAA4DXkBAAAAAAAAAAAAAAAACAAAAAAAAAAUFsF/f9/AADgWgX9/38AADASDwMAAAAAoF4F/f9/AAAuAAAAAAAAAMjtki/5fwAABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAMBIPAwAAAADwYQX9/38AAC4AAAAAAAAALgAAAAAAAAAvAAAAAAAAADA05AQAAAAAdkaTL/l/AADQ600FAAAAANCEQy/5fwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmMgkBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAWwX9/38AAAAAAAAAAAAAADXkBAAAAAAAAAAAAAAAAAA15AQAAAAAAAAAAAAAAAA4NeQEAAAAAAAAAAAAAAAAODXkBAAAAABgAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAEAAAAMQAAAACRuw96MMwwYF8F/f9/AADAYQX9/38AALBgBf3/fwAAcBUaAQAAAADoZQX9/38AAMBhBf3/fwAA8F0F/f9/AAAIRYsv+X8AAOBcBf3/fwAAAQAAAAAAAAArAU8ANQHoABYCXQAzAhwAgwFKAmEBJwG5AF8C/QBaAWsBggHMAckAhgA6AVgAxAD7AWQCZQF6AJgAdgEPAHIBCgFpAM4BewEbAQUALwFgAh4A8ADYAdMAZgGQAfUBUALWACwB5AH6AXIAGgLKAQAAgF4F/f9/AADAXgX9/38AAAAAAAAAAAAAqDXkBAAAAAAAAAAAAAAAAOA15AQAAAAAYaokBjwCAAAAAAAAAAAAAMBeBf3/fwAAMBIPAwAAAACAXgX9/38AAOA8KAYAAAAAgF0F/f9/AABxoJMv+X8AAGACAAAAAAAALgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgXQX9/38AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN26ki/5fwAASAIAAC4AAAAMPAAAAAAAAAUAAAAAAAAAAQAAAAAAAACgAAAAAAAAACAAAAD5fwAAUF4F/f9/AADgXQX9/38AABBeBf3/fwAAMBIPAwAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAANAAAAAAAAAP//////////AAAAAAAAAAAAAAAA/////wAAAAAAfwAALgAAAAAAAACQNOQEAAAAAGA05AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAAAAAAAPg9KAYAAAAAmM4kBgAAAAAAAAAAAAAAAA0AAAAAAAAA//////////8AAAAAAAAAAAAAAAD/////AAAAAAAAAAAAAAAAAAAAADg15AQAAAAAAAAAAAAAAAANAAAAAAAAAP//////////AAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkbsPejDMMAAAAAAAAAAAAAAAAAAAAACQZQX9/38AAJCW6AAAAAAA6GUF/f9/AADAYQX9/38AAFB6vgAAAAAAmU2LL/l/AACAYQX9/38AALBgBf3/fwAA6GUF/f9/AADYYQX9/38AAFBoBf3/fwAAmGIF/f9/AABoZgX9/38AAPxhBf3/fwAAIAAAAAAAAAAAYQX9/38AAJBgBf3/fwAAAAAAAAAAAAAAAAAAAAAAAN26ki/5fwAAAAgAAC0AAAAMiwAAAAAAAA4AAAAAAAAA//////////9Qer4AAAAAAAJwAAAAAABAMKUF/f9/AAAwEg8DAAAAALg8KAYAAAAAMDTkBAAAAABgNOQEAAAAAF2Cky/5fwAAkDTkBAAAAAADAAAAAAAAAAAAAAAAAAAAMBIPAwAAAAAwEg8DAAAAABBlBf3/fwAALQAAAAAAAAAwMuQEAAAAAAAy5AQAAAAAsCyTL/l/AAAAAAAAAAAAACjKJAYAAAAAADTkBAAAAAAAAAAAAAAAABBiBf3/fwAA8GEF/f9/AACQPCgGAAAAAJA8KAYAAAAAAAAAAAAAAABg0SQGAAAAAAAAAAAAAAAAcDLkBAAAAAAAAAAAAAAAAHAy5AQAAAAAAQAAAAAAAAADAAAAAAAAAAAAAAAAAAAADQAAAAAAAAD//////////wAAAAAAAAAAAAAAAP////8AAAAAAH8AAC4AAAAAAAAAkDTkBAAAAABgNOQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////AAAAAAAAAAD4PSgGAAAAAJjOJAYAAAAAAAAAAAAAAAANAAAAAAAAAP//////////AAAAAAAAAAAAAAAA/////wAAAAAAAAAAAAAAAAAAAAA4NeQEAAAAAAAAAAAAAAAADQAAAAAAAAD//////////wAAAAAAAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJG7D3owzDAgAAAAAAAAAGBpBf3/fwAAUGgF/f9/AACAHuoAAAAAAIhtBf3/fwAAYGkF/f9/AACQZQX9/38AAAhFiy/5fwAAMDLkBAAAAAABAAAAAAAAAFBoBf3/fwAAqGUF/f9/AAB4aQX9/38AAGhmBf3/fwAAOGoF/f9/AADMZQX9/w==";
-			
+
 			String sig;
-			
+
 			token = mss.asymmetric_encrypt(token, pkey);
-			// TODO APAGAR
-			System.out.println(mss.asymmetric_decrypt(token, skey));
-			System.out.println("TOKEN:" + token);
 			sig = mss.sign(token);
-			System.out.println("SIG:" + sig);
 
-			Log.i("TEST", "mss.verify - token: " + token);
-			Log.i("TEST", "mss.verify - sig: " + sig);
-			Log.i("TEST", "mss.verify - pkey: " + mss.getPkey());
-			Log.i("TEST", "mss.verify - " + mss.verify(token, sig, mss.getPkey()));
+			Log.i("CASH", "LoginTask.addRequestParameters at=mss.verify token=" + token +"\n" +
+					"sig="+sig+"\n" +
+							"pkey=" + mss.getPkey() + "\n" +
+									"result="+mss.verify(token, sig, mss.getPkey()));
 
-			Log.i("TEST", "mss.verify " + mss.verify(token, sig, mss.getPkey()));
-			
 			pairs.add(new BasicNameValuePair("id", id));
 			pairs.add(new BasicNameValuePair("token", token));
 			pairs.add(new BasicNameValuePair("sig", sig));
@@ -190,7 +185,7 @@ public class GatewayActivity extends SupplicantActivity {
 		public CheckloginTask(String hmac, String nonce) {
 			FileManager fileManager = new FileManager(GatewayActivity.this);
 			this.id = fileManager.readFile(RegisterActivity.GATEWAY_ID);
-			
+
 			this.hmac = hmac;
 			this.nonce = nonce;
 		}
@@ -203,12 +198,12 @@ public class GatewayActivity extends SupplicantActivity {
 	    @Override
 	    protected String doInBackground(String... arg) {
 	    	next_url = arg[0];
-	    	
-			Log.i("CASH_CHECKLOGIN", "nonce: " + nonce);
-			Log.i("CASH_CHECKLOGIN", "SESSION_KEY: " + SESSION_KEY);
-			Log.i("CASH_CHECKLOGIN", "hmac: " + hmac);
 
-	    	Log.i("CASH_CHECKLOGIN", String.valueOf(mss.verify_hmac(nonce, SESSION_KEY, hmac)));
+			Log.i("CASH", "CheckloginTask.doInBackground before=mss.verify_hmac() nonce=" + nonce +"\n" +
+					"SESSION_KEY=" + SESSION_KEY+"\n" +
+					"hmac: " + hmac+"\n" +
+					"mss.verify_hmac=" + String.valueOf(mss.verify_hmac(nonce, SESSION_KEY, hmac))+"\n");
+
 			if (mss.verify_hmac(nonce, SESSION_KEY, hmac)) {
 				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 				addRequestParameters(pairs);
@@ -226,23 +221,22 @@ public class GatewayActivity extends SupplicantActivity {
 				String checklogin = requestJson.getString("checklogin");
 				String hmac = requestJson.getString("hmac");
 
-				Log.i("LOGIN", "checklogin: " + checklogin);
-				Log.i("LOGIN", "hmac: " + hmac);
-				
-		    	Log.i("CASH", "verify_hmac: " + String.valueOf(mss.verify_hmac(checklogin, SESSION_KEY, hmac)));
-		    	
+				Log.i("CASH", "CheckloginTask.onPostExecute at=mss.verify_hmac checklogin=" + checklogin + "\n" +
+						"hmac: " + hmac + "\n" +
+								"result=" + String.valueOf(mss.verify_hmac(checklogin, SESSION_KEY, hmac)));
+
 		    	if (mss.verify_hmac(checklogin, SESSION_KEY, hmac)) {
 		    		// TODO replace with real IV
 					String encoded_iv;
 					byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-					encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);			
-					
+					encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+
 					String decrypted_checklogin = mss.symmetric_decrypt(checklogin, encoded_iv, SESSION_KEY);
-					Log.i("CASH", "decrypt checklogin: " + decrypted_checklogin);
+					Log.i("CASH", "CheckloginTask.onPostExecute decrypted_checklogin=" + decrypted_checklogin + "\n");
 					if (decrypted_checklogin.equals(HANDSHAKE_OK)) {
 						showToastMessage("CheckLogin successful!");
 						updateRemainingData(REMAINING_DATA);
-						new RequestTask(next_url).execute();			
+						new RequestTask(next_url).execute();
 
 					} else{
 						showToastMessage("CheckLogin failed: " + HANDSHAKE_FAILED);
@@ -252,44 +246,41 @@ public class GatewayActivity extends SupplicantActivity {
 				}
 				hideKeyboard();
 			} catch (JSONException | NullPointerException e) {
-				// 
+				//
 				showToastMessage("Error on the request");
 				e.printStackTrace();
 			}
 	    }
 
-		
+
 		private void addRequestParameters(List<NameValuePair> pairs) {
 			// TODO replace with real IV
 			String encoded_iv;
 			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);			
-			
+			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+
 			int new_nonce;
-			try {				
+			try {
 				new_nonce = Integer.parseInt(mss.symmetric_decrypt(nonce, encoded_iv, SESSION_KEY)) + 1;
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 				new_nonce = -1;
 			}
-			
-			Log.i("CASH", "CHECKLOGIN - new_nonce - " + String.valueOf(new_nonce));
-			Log.i("CASH", "CHECKLOGIN - encoded_iv - " + encoded_iv);
-			Log.i("CASH", "CHECKLOGIN - SESSION_KEY - " + SESSION_KEY);
-			
+
 			String encrypted_nonce = mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY);
 
-			Log.i("CASH", "CHECKLOGIN - ENCRYPTED NONCE - " + encrypted_nonce);
-			Log.i("CASH", "CHECKLOGIN - DECRYPTED NONCE TEST - " + mss.symmetric_decrypt(encrypted_nonce, encoded_iv, SESSION_KEY));
-			
+			Log.i("CASH", "CheckloginTask.addRequestParameters at=mss.symmetric_encrypt \n" +
+					"new_nonce=" + String.valueOf(new_nonce) + "\n" +
+					"encoded_iv=" + encoded_iv  + "\n" +
+					"SESSION_KEY - " + SESSION_KEY  + "\n" +
+					"result="+encrypted_nonce + "\n");
+
 			pairs.add(new BasicNameValuePair("id", id));
 			pairs.add(new BasicNameValuePair("nonce", encrypted_nonce));
-			Log.i("CASH", "NICE TO KNOW - ENCRYPTED NONCE - " + mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY));
-			Log.i("CASH", "NICE TO KNOW - ENCRYPTED NONCE - " + mss.symmetric_encrypt(String.valueOf(new_nonce - 1) , encoded_iv, SESSION_KEY));
 			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_nonce, SESSION_KEY)));
 		}
 	}
-	
+
 	private class RequestTask extends AsyncTask<Void, String, String>{
 
 		private String url;
@@ -301,7 +292,7 @@ public class GatewayActivity extends SupplicantActivity {
 
 			this.url = url;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 	    	updateStatus(R.string.loading);
@@ -325,16 +316,16 @@ public class GatewayActivity extends SupplicantActivity {
 				// TODO replace with real IV
 				String encoded_iv;
 				byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);	
+				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
 				String decrypted_response = mss.symmetric_decrypt(requestJson.getString("response"), encoded_iv, CheckloginTask.SESSION_KEY);
-				
+
 				JSONObject response = new JSONObject(decrypted_response);
 				String hmac = requestJson.getString("hmac");
 				String remainingData = response.getString("remaining_data");
 				String content = response.getString("content");
 
 				updateRemainingData(Integer.valueOf(remainingData));
-				
+
 				byte[] data = Base64.decode(content, Base64.DEFAULT);
 				String html = new String(data, "UTF-8");
 
@@ -342,7 +333,7 @@ public class GatewayActivity extends SupplicantActivity {
 				hideKeyboard();
 			} catch (JSONException | UnsupportedEncodingException
 					| NullPointerException e) {
-				// 
+				//
 				e.printStackTrace();
 				renderString(e.getMessage());
 			}
@@ -375,23 +366,23 @@ public class GatewayActivity extends SupplicantActivity {
 			    // TODO Auto-generated catch block
 			    e.printStackTrace();
 			}
-			
+
 	    	// TODO replace with real IV
 			String encoded_iv;
 			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);		
-			
+			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+
 			String encrypted_request = mss.symmetric_encrypt(request.toString(), encoded_iv, CheckloginTask.SESSION_KEY);
-			
+
 			pairs.add(new BasicNameValuePair("request", encrypted_request));
 			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_request, CheckloginTask.SESSION_KEY)));
 		}
 
-		
+
 	}
-	
+
 	private void updateRemainingData(int remainingData) {
-		setRemainingData(remainingData);	
+		setRemainingData(remainingData);
 		TextView tv = (TextView) findViewById(R.id.remaining_data);
 		tv.setText(String.valueOf(getRemainingData()));
 	}
