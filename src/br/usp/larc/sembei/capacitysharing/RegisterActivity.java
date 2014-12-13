@@ -53,9 +53,17 @@ public class RegisterActivity extends Activity {
 		findViewById(R.id.register_button).setOnClickListener(registerListener);
 		
 		// TODO remove
-		((EditText)findViewById(R.id.activation_code_edittext)).setText("904d25e5e6b3cb6a6a131b9d6289202d");
-		((EditText)findViewById(R.id.user_id_edittext)).setText("3");
-		((EditText)findViewById(R.id.user_name_edittext)).setText("gateway");
+		Bundle extras = getIntent().getExtras();
+		String supplicant = extras.getString(MainActivity.SUPPLICANT);
+		if (supplicant.equals(MainActivity.CLIENT)) {
+			((EditText)findViewById(R.id.activation_code_edittext)).setText("02260b2ada9786f76f174ee0c2273f6d");
+			((EditText)findViewById(R.id.user_id_edittext)).setText("4");
+			((EditText)findViewById(R.id.user_name_edittext)).setText("client");			
+		} else if (supplicant.equals(MainActivity.GATEWAY)) {
+			((EditText)findViewById(R.id.activation_code_edittext)).setText("904d25e5e6b3cb6a6a131b9d6289202d");
+			((EditText)findViewById(R.id.user_id_edittext)).setText("3");
+			((EditText)findViewById(R.id.user_name_edittext)).setText("gateway");
+		}
 	}
 
 	@Override

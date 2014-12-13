@@ -1,10 +1,15 @@
 package br.usp.larc.sembei.capacitysharing;
 
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 import br.usp.larc.sembei.capacitysharing.bluetooth.DeviceListActivity;
 
@@ -54,9 +59,10 @@ public class ClientActivity extends SupplicantActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+
 	@Override
-	protected void makeHttpRequest(String url) {
+	protected String makePostHttpRequest(String uri, List<NameValuePair> pairs) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 }
