@@ -59,17 +59,19 @@ public abstract class SupplicantActivity extends Activity {
     public static final int MESSAGE_WRITE = 3;
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
-    
+
     public static final String HANDSHAKE_OK = "HANDSHAKE_OK" ;
     public static final String HANDSHAKE_FAILED = "HANDSHAKE_FAILED" ;
     public static final int REMAINING_DATA = 10000000 ;
-    
+
     protected MSSCryptoProvider mss;
     private int remainingData = 0;
-    
 
+	protected abstract String makeLoginRequest(String string, String id, String token);
 	protected abstract String makePostHttpRequest(String uri, List<NameValuePair> pairs);
-  
+	protected abstract String makeCheckLoginRequest(String id, String encrypted_nonce, String hmac);
+	protected abstract String makeRedirectRequest(String id, String encrypted_request, String request_hmac);
+
  // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
         @Override
@@ -114,7 +116,7 @@ public abstract class SupplicantActivity extends Activity {
             }
         }
     };
-    
+
 	protected void makeHttpRequest(String url){
 		Log.i("CASH", "SupplicantActivity.makeHttpRequest " +
 				"remainingData="+getRemainingData()+
@@ -125,7 +127,6 @@ public abstract class SupplicantActivity extends Activity {
 			new LoginTask().execute(url);
 		}
 	}
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +144,7 @@ public abstract class SupplicantActivity extends Activity {
 		setSearchListener();
 		configureWebView();
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -172,7 +173,7 @@ public abstract class SupplicantActivity extends Activity {
            }
        }
     }
-	
+
 	protected void ensureDiscoverable() {
         if (mBluetoothAdapter.getScanMode() !=
             BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
@@ -191,7 +192,7 @@ public abstract class SupplicantActivity extends Activity {
 	        inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 	    }
 	}
-	
+
 	public void showToastMessage(String text) {
 		Context context = getApplicationContext();
 		int duration = Toast.LENGTH_SHORT;
@@ -199,13 +200,13 @@ public abstract class SupplicantActivity extends Activity {
 		Toast toast = Toast.makeText(context, text, duration);
 		toast.show();
 	}
-	
+
 	 protected void updateRemainingData(int remainingData) {
 		setRemainingData(remainingData);
 		TextView tv = (TextView) findViewById(R.id.remaining_data);
 		tv.setText(String.valueOf(getRemainingData()));
-	}  
-	
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -224,14 +225,14 @@ public abstract class SupplicantActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
     public void onDestroy() {
         super.onDestroy();
         // Stop the Bluetooth chat services
         if (mChatService != null) mChatService.stop();
     }
-	
+
 	private class MyWebViewClient extends WebViewClient {
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -266,7 +267,7 @@ public abstract class SupplicantActivity extends Activity {
             }
         }
     }
-	
+
 	/**
      * Sends a message.
      * @param message  A string of text to send.
@@ -287,7 +288,7 @@ public abstract class SupplicantActivity extends Activity {
             // Reset out string buffer to zero and clear the edit text field
             mOutStringBuffer.setLength(0);
         }
-    }    
+    }
 
 	private void setupChat() {
 		setSearchListener();
@@ -306,7 +307,7 @@ public abstract class SupplicantActivity extends Activity {
 		webSettings.setJavaScriptEnabled(true);
 		webview.setWebViewClient(new MyWebViewClient());
 	}
-    
+
 	private void setSearchListener() {
 		SearchView searchView = (SearchView) findViewById(R.id.url_bar);
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -314,7 +315,7 @@ public abstract class SupplicantActivity extends Activity {
 			@Override
 			public boolean onQueryTextSubmit(String query) {
 				Log.i("CASH", "onQueryTextSubmit: " + query);
-				
+
 		        if (!mBluetoothAdapter.isEnabled()) {
 		            showToastMessage("Please, enable bluetooth");
 		        } else{
@@ -338,9 +339,9 @@ public abstract class SupplicantActivity extends Activity {
 	public void setRemainingData(int remainingData) {
 		this.remainingData = remainingData;
 	}
-	
+
 	/********************
-	 * 
+	 *
 	 *  LOGIN
 	 *
 	 ********************/
@@ -357,9 +358,27 @@ public abstract class SupplicantActivity extends Activity {
 	    @Override
 	    protected String doInBackground(String... url) {
 	    	next_url = url[0];
-	    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        	addRequestParameters(pairs);
-	        return makePostHttpRequest("/login", pairs);
+
+    		//			id: <NUM>
+			//		token: <TEXT> 20 bytes // encripto NTRU //id, counter, session_key
+			//		sig: <TEXT> // assinar ciphertext do token
+			//		supplicant: (‘client’ | ‘gateway’)
+			// TODO replace with real token
+			FileManager fileManager = new FileManager(SupplicantActivity.this);
+			String id = fileManager.readFile(RegisterActivity.GATEWAY_ID);
+			String token = "iiiiiiiiiiiiiiiiiiii";
+			String pkey = fileManager.readFile(MainActivity.NTRU_PKEY);
+			String sig;
+
+			token = mss.asymmetric_encrypt(token, pkey);
+			sig = mss.sign(token);
+
+			Log.i("CASH", "LoginTask.addRequestParameters at=mss.verify token=" + token +"\n" +
+					"sig="+sig+"\n" +
+							"pkey=" + mss.getPkey() + "\n" +
+									"result="+mss.verify(token, sig, mss.getPkey()));
+
+			return makeLoginRequest(id, token, sig);
 	    }
 
 	    @Override
@@ -382,35 +401,10 @@ public abstract class SupplicantActivity extends Activity {
 				e.printStackTrace();
 			}
 	    }
-
-		private void addRequestParameters(List<NameValuePair> pairs) {
-			//		id: <NUM>
-			//		token: <TEXT> 20 bytes // encripto NTRU //id, counter, session_key
-			//		sig: <TEXT> // assinar ciphertext do token
-			//		supplicant: (‘client’ | ‘gateway’)
-			// TODO replace with real token
-			FileManager fileManager = new FileManager(SupplicantActivity.this);
-			String id = fileManager.readFile(RegisterActivity.GATEWAY_ID);
-			String token = "iiiiiiiiiiiiiiiiiiii";
-			String pkey = fileManager.readFile(MainActivity.NTRU_PKEY);
-			String sig;
-
-			token = mss.asymmetric_encrypt(token, pkey);
-			sig = mss.sign(token);
-
-			Log.i("CASH", "LoginTask.addRequestParameters at=mss.verify token=" + token +"\n" +
-					"sig="+sig+"\n" +
-							"pkey=" + mss.getPkey() + "\n" +
-									"result="+mss.verify(token, sig, mss.getPkey()));
-
-			pairs.add(new BasicNameValuePair("id", id));
-			pairs.add(new BasicNameValuePair("token", token));
-			pairs.add(new BasicNameValuePair("sig", sig));
-			pairs.add(new BasicNameValuePair("supplicant", "gateway"));
-		}
 	}
+
 	/********************
-	 * 
+	 *
 	 *  CHECKLOGIN
 	 *
 	 ********************/
@@ -446,9 +440,28 @@ public abstract class SupplicantActivity extends Activity {
 					"mss.verify_hmac=" + String.valueOf(mss.verify_hmac(nonce, SESSION_KEY, hmac))+"\n");
 
 			if (mss.verify_hmac(nonce, SESSION_KEY, hmac)) {
-				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-				addRequestParameters(pairs);
-				return makePostHttpRequest("/checklogin", pairs);
+				// TODO replace with real IV
+				String encoded_iv;
+				byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+
+				int new_nonce;
+				try {
+					new_nonce = Integer.parseInt(mss.symmetric_decrypt(nonce, encoded_iv, SESSION_KEY)) + 1;
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					new_nonce = -1;
+				}
+				String encrypted_nonce = mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY);
+				String checkloginHmac = mss.get_hmac(encrypted_nonce, SESSION_KEY);
+
+				Log.i("CASH", "CheckloginTask.addRequestParameters at=mss.symmetric_encrypt \n" +
+						"new_nonce=" + String.valueOf(new_nonce) + "\n" +
+						"encoded_iv=" + encoded_iv  + "\n" +
+						"SESSION_KEY - " + SESSION_KEY  + "\n" +
+						"result="+encrypted_nonce + "\n");
+
+				return makeCheckLoginRequest(id, encrypted_nonce, checkloginHmac);
 			} else{
 				return null;
 			}
@@ -493,37 +506,10 @@ public abstract class SupplicantActivity extends Activity {
 			}
 	    }
 
-
-		private void addRequestParameters(List<NameValuePair> pairs) {
-			// TODO replace with real IV
-			String encoded_iv;
-			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
-
-			int new_nonce;
-			try {
-				new_nonce = Integer.parseInt(mss.symmetric_decrypt(nonce, encoded_iv, SESSION_KEY)) + 1;
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-				new_nonce = -1;
-			}
-
-			String encrypted_nonce = mss.symmetric_encrypt(String.valueOf(new_nonce) , encoded_iv, SESSION_KEY);
-
-			Log.i("CASH", "CheckloginTask.addRequestParameters at=mss.symmetric_encrypt \n" +
-					"new_nonce=" + String.valueOf(new_nonce) + "\n" +
-					"encoded_iv=" + encoded_iv  + "\n" +
-					"SESSION_KEY - " + SESSION_KEY  + "\n" +
-					"result="+encrypted_nonce + "\n");
-
-			pairs.add(new BasicNameValuePair("id", id));
-			pairs.add(new BasicNameValuePair("nonce", encrypted_nonce));
-			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_nonce, SESSION_KEY)));
-		}
 	}
 
 	/********************
-	 * 
+	 *
 	 *  REQUEST LOGIN
 	 *
 	 ********************/
@@ -547,9 +533,24 @@ public abstract class SupplicantActivity extends Activity {
 
 	    @Override
 	    protected String doInBackground(Void... uri) {
-	    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        	addRequestParameters(pairs);
-	        return makePostHttpRequest("/redirect", pairs);
+			JSONObject request = new JSONObject();
+			try {
+				request.put("url", url);
+				request.put("method", "get");
+				request.put("params", "");
+			} catch (JSONException e) {
+			    e.printStackTrace();
+			}
+
+	    	// TODO replace with real IV
+			String encoded_iv;
+			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+
+			String encrypted_request = mss.symmetric_encrypt(request.toString(), encoded_iv, CheckloginTask.SESSION_KEY);
+			String request_hmac = mss.get_hmac(encrypted_request, CheckloginTask.SESSION_KEY);
+
+			return makeRedirectRequest(id, encrypted_request, request_hmac);
 	    }
 
 	    @Override
@@ -560,23 +561,23 @@ public abstract class SupplicantActivity extends Activity {
 
 				JSONObject requestJson = new JSONObject(result);
 				String hmac = requestJson.getString("hmac");
-				
+
 				if (mss.verify_hmac(requestJson.getString("response"), CheckloginTask.SESSION_KEY, hmac)) {
 					// TODO replace with real IV
 					String encoded_iv;
 					byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
 					encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
-					
+
 					String decrypted_response = mss.symmetric_decrypt(requestJson.getString("response"), encoded_iv, CheckloginTask.SESSION_KEY);
 					JSONObject response = new JSONObject(decrypted_response);
 					String remainingData = response.getString("remaining_data");
 					String content = response.getString("content");
-		
+
 					updateRemainingData(Integer.valueOf(remainingData));
-	
+
 					byte[] data = Base64.decode(content, Base64.DEFAULT);
 					String html = new String(data, "UTF-8");
-	
+
 					renderString(formatHtmlLink(html));
 					hideKeyboard();
 				}else{
@@ -604,31 +605,6 @@ public abstract class SupplicantActivity extends Activity {
 			webview.loadDataWithBaseURL(null, html, "text/html", "utf-8", "");
 //			webview.loadData(html, "text/html; charset=UTF-8", null);
 		}
-
-		private void addRequestParameters(List<NameValuePair> pairs) {
-			pairs.add(new BasicNameValuePair("id", id));
-
-			JSONObject request = new JSONObject();
-			try {
-				request.put("url", url);
-				request.put("method", "get");
-				request.put("params", "");
-			} catch (JSONException e) {
-			    // TODO Auto-generated catch block
-			    e.printStackTrace();
-			}
-
-	    	// TODO replace with real IV
-			String encoded_iv;
-			byte[] iv = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-			encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
-
-			String encrypted_request = mss.symmetric_encrypt(request.toString(), encoded_iv, CheckloginTask.SESSION_KEY);
-
-			pairs.add(new BasicNameValuePair("request", encrypted_request));
-			pairs.add(new BasicNameValuePair("hmac", mss.get_hmac(encrypted_request, CheckloginTask.SESSION_KEY)));
-		}
-
-
 	}
+
 }

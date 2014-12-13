@@ -51,14 +51,14 @@ public class RegisterActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
 		findViewById(R.id.register_button).setOnClickListener(registerListener);
-		
+
 		// TODO remove
 		Bundle extras = getIntent().getExtras();
 		String supplicant = extras.getString(MainActivity.SUPPLICANT);
 		if (supplicant.equals(MainActivity.CLIENT)) {
 			((EditText)findViewById(R.id.activation_code_edittext)).setText("02260b2ada9786f76f174ee0c2273f6d");
 			((EditText)findViewById(R.id.user_id_edittext)).setText("4");
-			((EditText)findViewById(R.id.user_name_edittext)).setText("client");			
+			((EditText)findViewById(R.id.user_name_edittext)).setText("client");
 		} else if (supplicant.equals(MainActivity.GATEWAY)) {
 			((EditText)findViewById(R.id.activation_code_edittext)).setText("904d25e5e6b3cb6a6a131b9d6289202d");
 			((EditText)findViewById(R.id.user_id_edittext)).setText("3");
@@ -269,7 +269,6 @@ public class RegisterActivity extends Activity {
 							GatewayActivity.class));
 				}
 			} catch (JSONException | NullPointerException e) {
-				// TODO Auto-generated catch
 				e.printStackTrace();
 				Toast toast = Toast.makeText(
 						RegisterActivity.this.getApplicationContext(),
@@ -307,10 +306,8 @@ public class RegisterActivity extends Activity {
 	            }
 	        } catch (ClientProtocolException e) {
 	        	Log.e("ClientProtocolException", e.getMessage());
-	            //TODO Handle problems..
 	        } catch (IOException e) {
 	        	Log.e("IOException", e.getMessage());
-	            //TODO Handle problems..
 	        }
 	        return responseString;
 		}
@@ -330,7 +327,6 @@ public class RegisterActivity extends Activity {
 				fileManager.writeToFile(CLIENT_CERT, cert);
 			} else if (supplicant.equals(MainActivity.GATEWAY)) {
 				fileManager.writeToFile(GATEWAY_CERT, cert);
-
 			}
 		}
 	}

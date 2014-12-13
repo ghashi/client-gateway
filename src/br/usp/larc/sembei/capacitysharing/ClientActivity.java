@@ -65,4 +65,24 @@ public class ClientActivity extends SupplicantActivity {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	protected String makeLoginRequest(String string, String id, String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String makeCheckLoginRequest(String id, String encrypted_nonce,
+			String hmac) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String makeRedirectRequest(String id, String encrypted_request,
+			String request_hmac) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

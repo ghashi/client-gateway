@@ -40,8 +40,6 @@ import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 
 public class GatewayActivity extends SupplicantActivity {
 
-	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
@@ -144,5 +142,39 @@ public class GatewayActivity extends SupplicantActivity {
            return true;
        }
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected String makeLoginRequest(String id, String token,
+			String sig) {
+    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("id", id));
+		pairs.add(new BasicNameValuePair("token", token));
+		pairs.add(new BasicNameValuePair("sig", sig));
+		pairs.add(new BasicNameValuePair("supplicant", "gateway"));
+
+    	return makePostHttpRequest("/login", pairs);
+	}
+
+	@Override
+	protected String makeCheckLoginRequest(String id, String encrypted_nonce,
+			String hmac) {
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("id", id));
+		pairs.add(new BasicNameValuePair("nonce", encrypted_nonce));
+		pairs.add(new BasicNameValuePair("hmac", hmac));
+
+		return makePostHttpRequest("/checklogin", pairs);
+	}
+
+	@Override
+	protected String makeRedirectRequest(String id, String encrypted_request,
+			String request_hmac) {
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("id", id));
+		pairs.add(new BasicNameValuePair("request", encrypted_request));
+		pairs.add(new BasicNameValuePair("hmac", request_hmac));
+
+		return makePostHttpRequest("/redirect", pairs);
 	}
 }
