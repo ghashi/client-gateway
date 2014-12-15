@@ -7,10 +7,10 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_bluetooth"/>
-    <item
-        android:id="@+id/scan"
+     <item
+        android:id="@+id/discoverable"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/connect"/>
+        android:title="@string/discoverable"/>
 
 </menu>

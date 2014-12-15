@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    get_hash
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hash
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    get_hmac
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */

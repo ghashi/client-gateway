@@ -3,6 +3,7 @@
 #include "aes_128.h"
 #include "hmac.h"
 #include "util.h"
+#include "certificate.h"
 
 #include <string.h>
 
@@ -24,23 +25,48 @@
 
 /*
  * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
+ * Method:    get_hash
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hash(JNIEnv *jvm, jobject jobj, jstring jmessage) {
+	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
+	unsigned int message_len = (*jvm)->GetStringUTFLength(jvm, jmessage);
+
+        unsigned char buffer[2 * (2 * MSS_SEC_LVL)];
+
+	sponge_hash(message, message_len, buffer, 2 * MSS_SEC_LVL);
+
+
+        base64encode(buffer, 2 * MSS_SEC_LVL, buffer, 2 * (2 * MSS_SEC_LVL));
+        jstring jhash = (*jvm)->NewStringUTF(jvm, buffer);
+
+        (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
+
+	return jhash;
+}
+
+
+/*
+ * Class:     br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider
  * Method:    get_hmac
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_get_1hmac(JNIEnv *jvm, jobject jobj, jstring jmessage, jstring jkey) {
 	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
-        const unsigned char *key = (*jvm)->GetStringUTFChars(jvm, jkey, JNI_FALSE);
+	DECODE_IN_B64(key);
 
         unsigned char tag[HMAC_TAG_SIZE];
+        unsigned int tag_len = HMAC_TAG_SIZE;
 
 	get_hmac(message, key, tag);
-        char buffer[2 * HMAC_TAG_SIZE];
 
-        base64encode(tag, HMAC_TAG_SIZE, buffer, 2 * HMAC_TAG_SIZE);
+	ENCODE_B64(tag);
         jstring jtag = (*jvm)->NewStringUTF(jvm, buffer);
 
+	free(buffer);
+
         (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
-        (*jvm)->ReleaseStringUTFChars(jvm, jkey, key);
+	RELEASE(key);
 
 	return jtag;
 }
@@ -52,23 +78,16 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
  */
 JNIEXPORT jboolean JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_verify_1hmac(JNIEnv *jvm, jobject jobj, jstring jmessage, jstring jkey, jstring jtag) {
 	const char *message = (*jvm)->GetStringUTFChars(jvm, jmessage, JNI_FALSE);
-        const unsigned char *key = (*jvm)->GetStringUTFChars(jvm, jkey, JNI_FALSE);
-        const char *tag = (*jvm)->GetStringUTFChars(jvm, jtag, JNI_FALSE);
+	DECODE_IN_B64(key);
+	DECODE_IN_B64(tag);
 
-	unsigned int buffer_len = (*jvm)->GetStringUTFLength(jvm, jtag);
-	unsigned char *buffer = malloc(buffer_len);
-	base64decode(tag, buffer_len, buffer, &buffer_len);
-
-	jboolean accepted = verify_hmac(buffer, message, key);
-
-	free(buffer);
+	jboolean accepted = verify_hmac(tag, message, key);
 
         (*jvm)->ReleaseStringUTFChars(jvm, jmessage, message);
-        (*jvm)->ReleaseStringUTFChars(jvm, jkey, key);
-        (*jvm)->ReleaseStringUTFChars(jvm, jtag, tag);
+	RELEASE(key);
+	RELEASE(tag);
 
         return accepted;
-
 }
 
 /*
@@ -82,7 +101,7 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 	DECODE_IN_B64(iv);
 	DECODE_IN_B64(key);
 
-	unsigned int ciphertext_len = 2 * plaintext_len;
+	unsigned int ciphertext_len = plaintext_len + AES_128_BLOCK_SIZE;
 	unsigned char *ciphertext = malloc(ciphertext_len);
 
 	aes_128_cbc_encrypt(key, iv, plaintext, ciphertext, &ciphertext_len);
@@ -128,7 +147,8 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoProvider_asymmetric_1encrypt(JNIEnv *jvm, jobject jobj, jstring jplaintext, jstring jpkey) {
-	DECODE_IN_B64(plaintext);
+	const char *plaintext = (*jvm)->GetStringUTFChars(jvm, jplaintext, JNI_FALSE);
+	unsigned int plaintext_len = (*jvm)->GetStringUTFLength(jvm, jplaintext);
 	DECODE_IN_B64(pkey);
 
 	unsigned int ciphertext_len = ntru_ciphertext_len();
@@ -141,7 +161,7 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 
 	free(ciphertext);
 
-        RELEASE(plaintext);
+        (*jvm)->ReleaseStringUTFChars(jvm, jplaintext, plaintext);
         RELEASE(pkey);
 	return jciphertext;
 }
