@@ -3,6 +3,7 @@ package br.usp.larc.sembei.capacitysharing.crypto;
 import java.security.SecureRandom;
 
 import android.app.Activity;
+import android.util.Base64;
 import android.util.Log;
 import br.usp.larc.sembei.capacitysharing.MainActivity;
 import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
@@ -37,15 +38,15 @@ public class MSSCryptoProvider extends CryptoProvider {
 	@Override
 	public String sign(String message) {
 		String skey = fileManager.readFile(skeyFile);
-		Log.d("CASH", "skey: " + skey);
-		Log.d("CASH", "message: " + message);
+		Log.d("CASH", "antes skey: " + skey);
+//		Log.d("CASH", "message: " + message);
 		String digest = get_hash(message);
-		Log.d("CASH", "digest: " + digest);
+//		Log.d("CASH", "digest: " + digest);
 		String[] sigState = MSS.sign(digest, skey);
 		String signature = sigState[0];
 		skey = sigState[1];
-		Log.d("CASH", "signature: " + signature);
-		Log.d("CASH", "skey: " + skey);
+//		Log.d("CASH", "signature: " + signature);
+		Log.d("CASH", "depois skey: " + skey);
 		fileManager.writeToFile(skeyFile, skey);
 		return signature;
 	}
@@ -57,11 +58,19 @@ public class MSSCryptoProvider extends CryptoProvider {
 	public String getSkey(){
 		return fileManager.readFile(skeyFile);
 	}
+	
+	public int getSignatureIndex(){
+		byte[] skey = Base64.decode(fileManager.readFile(skeyFile), Base64.NO_WRAP);
+		Log.i("CASH", "MSSCryptoProvider.getSignatureIndex (skey[1]) << 8)=" + String.valueOf(Integer.valueOf(skey[1]) << 8) + "\n" +
+				"skey[0]=" + String.valueOf(Integer.valueOf(skey[0])));
+		int count = (Integer.valueOf(skey[1]) << 8) | Integer.valueOf(skey[0]);
+		return count;
+	}
 
 	@Override
 	public boolean verify(String message, String signature, String pkey) {
 		String digest = get_hash(message);
-		Log.d("CASH", "digest: " + digest);
+//		Log.d("CASH", "digest: " + digest);
 		return MSS.verify(digest, signature, pkey);
 	}
 

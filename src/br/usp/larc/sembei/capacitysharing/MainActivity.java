@@ -375,15 +375,38 @@ public class MainActivity extends Activity {
 		/**
 		 * Digital Signature
 		 */
-		String msg = "Test message";
+//		String msg = "fUjvoUz87ugaQpVXJW65x4b5YjsJiudz/65J9u4J/iKTv70OA/8hiDAU9qO/N3oNkQASBYMmf3qXfkUz/vjMnagD1ARt3M/UgGVXS4riIQ052K0wR71YpQHPfFw0uqjjj/wdemeMBmKQfMK5FBaBR0USA4oOSGRb5Ga5Vg+o3K/ObT+dzMgmeS+YLyaGDEAclQQDu+/2tFvanOqrBRmFCgk87G6Xc9u3xBVlWSXJ2EZw4x3pI+VT8Y/OhX7XCkLkcEH8Qd1oLTyNJpiveSa64JEVIwQHuG3uQpzDw3L7KaPER8eRkgzn4yTaIWWyb+hU4krlyI6BkLm2EzoYnb693wZXDClkFKFc5w0cSte6blZYMmaXIj4ErIpRGl+Uu70HELuQH4EKxblQAAsiCbN1d+AACVGhuod5Z/9zkGJKfq456Pbh0Re0ZTV20e53Eu4koWC3GocE25wBqwsaqoqhF0aADoK2TfwZ8iS5TnAoiX3imMqSUINLjCr2EFUzxVSjLX1pTZcWDHGKxAy6GTTtnXftypCoVij/903ANFllW598lRDlEHh8RLBiRQappHWFAsTYBm6q1+mTJOI63i7yVLoIHZEPA3TCdu6AzHlC/vKNNfdYFROjTBmtqP0+h3Mi7Rw5eNPsxy/GtjLNqdHKc+wh+pdNyk1NxuxGhkeGHdB+AstfW+Tmv1etKU4twctXQ9qsjOdp4C6DGQW1nGLjNUtyterbCXwu4q9sAxijRFIflsJdqaLvTbBSrZWjbVzYJTF6nDnFvXr2JQxijLhs94J0+bjRIm1bvTf4/OQFcV4C56Q0Wd5dMcO9zlH+TyXyAojREMN75yQyIgUxRADtLfAKsw2V0dKdrCCmGVU/Z6jnSFwvji1ZNlwd8zWPJOHOcgli07Q0psY+c/ar29tNxvvOcTeBHN4FtZ84/D0sbBPX37wMFaVcff1f3Lz9+yKntpf4i6L/I1vf/xQhk3/9/HwuTF/iCTiYVzOz9c056SoZdfB/5vX7EMmTiWpr1lhKGtOIuMvsiNZ0f4rupwXJTELbRdmYcSvXrF+ovrkJBl8744Yu2Obr4KfzvB8ZaYylBBcs9i8PfWAoYKgcr8K6PPQNiWgmeSwZ0W4x";
+		String msg = "teste";
 		mss.keyGen();
-		Log.i("TEST", "mss.getPkey(): " + mss.getPkey());
-		Log.i("TEST", "mss.getSkey() - before: " + mss.getSkey());
-		String signature = mss.sign(msg);
-		Log.i("TEST", "signed_msg: " + signature);
-		Log.i("TEST", "verify: " + mss.verify(msg, signature, mss.getPkey()));
-		Log.i("TEST", "mss.getSkey() - after: " + mss.getSkey());
+//		Log.i("TEST", "mss.getPkey(): " + mss.getPkey());
+//		Log.i("TEST", "mss.getSkey() - before: " + mss.getSkey());
+//		String signature = mss.sign(msg);
+//		Log.i("TEST", "signed_msg: " + signature);
+//		Log.i("TEST", "verify: " + mss.verify(msg, signature, mss.getPkey()));
+//		Log.i("TEST", "mss.getSkey() - after: " + mss.getSkey());
 
+//		Log.i("TEST", "APAGAR mss_verify="+ mss.verify(
+//				"fUjvoUz87ugaQpVXJW65x4b5YjsJiudz/65J9u4J/iKTv70OA/8hiDAU9qO/N3oNkQASBYMmf3qXfkUz/vjMnagD1ARt3M/UgGVXS4riIQ052K0wR71YpQHPfFw0uqjjj/wdemeMBmKQfMK5FBaBR0USA4oOSGRb5Ga5Vg+o3K/ObT+dzMgmeS+YLyaGDEAclQQDu+/2tFvanOqrBRmFCgk87G6Xc9u3xBVlWSXJ2EZw4x3pI+VT8Y/OhX7XCkLkcEH8Qd1oLTyNJpiveSa64JEVIwQHuG3uQpzDw3L7KaPER8eRkgzn4yTaIWWyb+hU4krlyI6BkLm2EzoYnb693wZXDClkFKFc5w0cSte6blZYMmaXIj4ErIpRGl+Uu70HELuQH4EKxblQAAsiCbN1d+AACVGhuod5Z/9zkGJKfq456Pbh0Re0ZTV20e53Eu4koWC3GocE25wBqwsaqoqhF0aADoK2TfwZ8iS5TnAoiX3imMqSUINLjCr2EFUzxVSjLX1pTZcWDHGKxAy6GTTtnXftypCoVij/903ANFllW598lRDlEHh8RLBiRQappHWFAsTYBm6q1+mTJOI63i7yVLoIHZEPA3TCdu6AzHlC/vKNNfdYFROjTBmtqP0+h3Mi7Rw5eNPsxy/GtjLNqdHKc+wh+pdNyk1NxuxGhkeGHdB+AstfW+Tmv1etKU4twctXQ9qsjOdp4C6DGQW1nGLjNUtyterbCXwu4q9sAxijRFIflsJdqaLvTbBSrZWjbVzYJTF6nDnFvXr2JQxijLhs94J0+bjRIm1bvTf4/OQFcV4C56Q0Wd5dMcO9zlH+TyXyAojREMN75yQyIgUxRADtLfAKsw2V0dKdrCCmGVU/Z6jnSFwvji1ZNlwd8zWPJOHOcgli07Q0psY+c/ar29tNxvvOcTeBHN4FtZ84/D0sbBPX37wMFaVcff1f3Lz9+yKntpf4i6L/I1vf/xQhk3/9/HwuTF/iCTiYVzOz9c056SoZdfB/5vX7EMmTiWpr1lhKGtOIuMvsiNZ0f4rupwXJTELbRdmYcSvXrF+ovrkJBl8744Yu2Obr4KfzvB8ZaYylBBcs9i8PfWAoYKgcr8K6PPQNiWgmeSwZ0W4x",
+//				"AD8AAAD/////AQAAAP////8BAAA+AGnQ5F1Iq7elDTixGIQHEHEBHgAiSLM3Fe8a26O2/vjnuhuIAg4AE14y/AYbkLLDHiJ2byIX7wMGAKrn/uw1q1DsTflTaR75dEQEAgCePw/i+CB5zRY75Za6ar5FBQAAP7RD7iWO3fwaBSH3SbQTeQYBAB2Jxygeo8yUa5sGNGDg9mkHAQBz8OFx+qLxoe65EA7lT9nfCAEAQ6DS40f1A847lSSD9nRTQgkBAAGk9Bwu8OzMtGMtXz38PAvYTcOUEviIPIaz06HkneLdchJnBKRWJg+6rgsNMlKLG5C0XAWgeKTHB/Po3xjzu0/UuWc63/nSZQtxsUK5lFWZjAbkn79tRpeF5L5b/k1+33leELtkoMTDewGuUl5Pc9T/vWtQCMJZaiT2gzeZiPjxEVqKzXZHEKVr7UYGURSElCn5vttCZCdzBo9l3Dc5FSp63QnWwRNGJd8XYwG2C73FMt3tEXIQGQ5NQ+r+lJxhFT99ZdgJ3k9i6ESoByMpskSPGgya/Ky/+XdvsLE246MQLMXMRR/tmuFvN4i3Lcpye7oTbD1VRQt+CYzp0YRrxqiW8l8cUC5B297FQ72wNI2q4X4gbI7t4fapexFQEk90f/n89W7EHjrf72o9RQIsIyR/cFZDTUziasRX/TgU8ZySl6VW/Ju+fLlvvwF+sViTy3TjGTiqc21D7Bxqac1NFXrwCvfieA6U8z7EXUnMLXFnOtcyRWanotRtitDaR33VeVjxwSEB0JmbTVCs074/WD0YZU7KK2RBdsMHIcopv6Y/JPnzqdVhDAkL18lwIhE5py17l/7WUG9LpsG6ew+w7LWP9BStjHEgIRt0nVqSwdg1ht+0BQusUk7gc6bggZ1QVhBsxoB4EsKq8VD0zfwiTb3I6LiDqicEWu08aTSplk/IqpVQ6vjqSt3e9GltuTOw5VV8spmyURLm7GJ85XJrLm43UOQ4xCICFlOfMv/ggke3vy08FJx8SoyBwkfCuj/Z6yHy8OZaq+drHQan4ogL1gd0GuONlF2HqJCafbQwm9abSmSnEi5Bt0r7ih2fbHxZOVHz0wR5ZOTVODVwapzBeEwkPLLvf1worEuGYz/CJdLLd0a3gKO8vYyDl4cq+Z3ykyPOGO6bppAXEMJSZaU9uTwoJEgvzaXKMRKmYeU9HR1OGKtRtY9YbazINgu16VYy5+Ai9tq5bMYBBqY4hzscTnWmHGHK289IJAjV+/z3J+sZl/n0WaobEoZN6Y7mGwK/XjmPWjb2naZJDQHNKi2on75wtUhKsrq8o+kBLxkwGPqcy/0shsXO5Dvqx2mfxrvPlg2tZFhor33U7qQloaXg5l0mnU9D8UmKMqSG9Urg2bk8Pc+tMt5toU2jQFsp+3j85RMl/MX1bTp8I0ixGNLGtN9wJFi58XHgm2cJIOOigNfLGmfHhrOiFhc9DEc50eTP1l1C3p0vpFjnShs/QoRnX3TTm3xiaV2JOLyDl8cjZumB/7V0TKlP3AUhV79ftXfpf+veOD3d2qF7YCYZQQz4lrv5ks03mAz/wyAhkpH5+yzd5jqd9whC7JepKNTEVQSEr/jNlQ+cpg/F+genzrTIr0SEi6TwGM4Q1CteFpHHbas4zpmTuyHXfxNnpoqlOKUuXjzAKKe5HCCB97GE1ZndrOo+Aa5w+tVjC7QKZLtG4BtNRANEYv55vWcH+L+MQI34aQ==", 
+//				"TG0fJRhEGrTW8o1xXiZQ7A=="));
+		int i;
+	
+		String signature2 = mss.sign(msg);
+		Log.i("TEST", "FORA signature2: " + signature2);
+		Log.i("TEST", "FORA mss_verify: " + mss.verify(msg, signature2, mss.getPkey()));
+	
+		for (i = 0; i < 2; i++){
+			signature2 = mss.sign(msg);
+			Log.i("TEST", "signature2: " + signature2);
+			Log.i("TEST", "mss_verify: " + mss.verify(msg, signature2, mss.getPkey()));
+		}
+		for (i = 0; i < 2; i++){
+			signature2 = mss.sign(msg);
+			Log.i("TEST", "signature2: " + signature2);
+			Log.i("TEST", "mss_verify: " + mss.verify(msg, signature2, mss.getPkey()));
+		}
+
+		
 		/**
 		 * HMAC
 		 */
