@@ -61,6 +61,7 @@ public abstract class SupplicantActivity extends Activity {
 
 	protected MSSCryptoProvider mss;
 	private int remainingData = 0;
+	private String sessionKey;
 
 	/**
 	 * Process bluetooth message
@@ -286,21 +287,36 @@ public abstract class SupplicantActivity extends Activity {
 	 * 
 	 * @return [token, sig]
 	 */
-	protected String[] getLoginParams() {
+	protected String[] getLoginParams(String id) {
 		// id: <NUM>
 		// token: <TEXT> 20 bytes // encripto NTRU //id, counter, session_key
 		// sig: <TEXT> // assinar ciphertext do token
 		// supplicant: (‘client’ | ‘gateway’)
-		// TODO replace with real token
 		FileManager fileManager = new FileManager(SupplicantActivity.this);
-		String token = "iiiiiiiiiiiiiiiiiiii";
+		
+		// TODO change counter
+		String count = "1";
+		
+		String session_key = mss.symmetric_keyGen();
+		setSessionKey(session_key);
+		
+		JSONObject tokenJSON = new JSONObject();
+		try {
+			tokenJSON.put("id", id);
+			tokenJSON.put("count", count);
+			tokenJSON.put("session_key", session_key);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
 		String pkey = fileManager.readFile(MainActivity.NTRU_PKEY);
-		String sig;
 
-		token = mss.asymmetric_encrypt(token, pkey);
-		sig = mss.sign(token);
+		String token = mss.asymmetric_encrypt(tokenJSON.toString(), pkey);
+		String sig = mss.sign(token);
 
-		Log.i("CASH", "SupplicantActivity.getLoginParams at=mss.verify token="
+		Log.i("CASH", "SupplicantActivity.getLoginParams at=mss.verify " +
+				"\nsession_key=" + session_key +
+				"\ndecrypted_token=" + tokenJSON.toString() + "\ntoken="
 				+ token + "\n" + "sig=" + sig + "\n" + "pkey=" + mss.getPkey()
 				+ "\n" + "result=" + mss.verify(token, sig, mss.getPkey()));
 
@@ -319,27 +335,27 @@ public abstract class SupplicantActivity extends Activity {
 		String encoded_iv;
 		byte[] iv = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa,
 				0xb, 0xc, 0xd, 0xe, 0xf };
-		encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+		encoded_iv = Base64.encodeToString(iv, Base64.NO_WRAP);
 
 		int new_nonce;
 		try {
 			new_nonce = Integer.parseInt(mss.symmetric_decrypt(nonce,
-					encoded_iv, GatewayActivity.SESSION_KEY)) + 1;
+					encoded_iv, getSessionKey())) + 1;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			new_nonce = -1;
 		}
 		String encrypted_nonce = mss.symmetric_encrypt(
 				String.valueOf(new_nonce), encoded_iv,
-				GatewayActivity.SESSION_KEY);
+				getSessionKey());
 		String checkloginHmac = mss.get_hmac(encrypted_nonce,
-				GatewayActivity.SESSION_KEY);
+				getSessionKey());
 
 		Log.i("CASH",
 				"SupplicantActivity.getCheckLoginParams at=mss.symmetric_encrypt \n"
 						+ "new_nonce=" + String.valueOf(new_nonce) + "\n"
 						+ "encoded_iv=" + encoded_iv + "\n" + "SESSION_KEY - "
-						+ GatewayActivity.SESSION_KEY + "\n" + "result="
+						+ getSessionKey() + "\n" + "result="
 						+ encrypted_nonce + "\n");
 
 		String[] res = new String[2];
@@ -368,12 +384,12 @@ public abstract class SupplicantActivity extends Activity {
 		String encoded_iv;
 		byte[] iv = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa,
 				0xb, 0xc, 0xd, 0xe, 0xf };
-		encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+		encoded_iv = Base64.encodeToString(iv, Base64.NO_WRAP);
 
 		String encrypted_request = mss.symmetric_encrypt(request.toString(),
-				encoded_iv, GatewayActivity.SESSION_KEY);
+				encoded_iv, getSessionKey());
 		String request_hmac = mss.get_hmac(encrypted_request,
-				GatewayActivity.SESSION_KEY);
+				getSessionKey());
 
 		String[] res = new String[2];
 		res[0] = encrypted_request;
@@ -397,17 +413,17 @@ public abstract class SupplicantActivity extends Activity {
 							+ "\n"
 							+ "result="
 							+ String.valueOf(mss.verify_hmac(checklogin,
-									GatewayActivity.SESSION_KEY, hmac)));
+									getSessionKey(), hmac)));
 
-			if (mss.verify_hmac(checklogin, GatewayActivity.SESSION_KEY, hmac)) {
+			if (mss.verify_hmac(checklogin, getSessionKey(), hmac)) {
 				// TODO replace with real IV
 				String encoded_iv;
 				byte[] iv = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9,
 						0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
-				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+				encoded_iv = Base64.encodeToString(iv, Base64.NO_WRAP);
 
 				String decrypted_checklogin = mss.symmetric_decrypt(checklogin,
-						encoded_iv, GatewayActivity.SESSION_KEY);
+						encoded_iv, getSessionKey());
 				Log.i("CASH",
 						"CheckloginTask.onPostExecute decrypted_checklogin="
 								+ decrypted_checklogin + "\n");
@@ -432,16 +448,16 @@ public abstract class SupplicantActivity extends Activity {
 			String hmac = requestJson.getString("hmac");
 
 			if (mss.verify_hmac(requestJson.getString("response"),
-					GatewayActivity.SESSION_KEY, hmac)) {
+					getSessionKey(), hmac)) {
 				// TODO replace with real IV
 				String encoded_iv;
 				byte[] iv = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9,
 						0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
-				encoded_iv = Base64.encodeToString(iv, Base64.DEFAULT);
+				encoded_iv = Base64.encodeToString(iv, Base64.NO_WRAP);
 
 				String decrypted_response = mss.symmetric_decrypt(
 						requestJson.getString("response"), encoded_iv,
-						GatewayActivity.SESSION_KEY);
+						getSessionKey());
 				JSONObject response = new JSONObject(decrypted_response);
 				String remainingData = response.getString("remaining_data");
 				String content = response.getString("content");
@@ -524,6 +540,14 @@ public abstract class SupplicantActivity extends Activity {
 		this.remainingData = remainingData;
 	}
 
+	public String getSessionKey() {
+		return sessionKey;
+	}
+
+	public void setSessionKey(String sessionKey) {
+		this.sessionKey = sessionKey;
+	}
+	
 	/**
 	 * WEBVIEW
 	 */

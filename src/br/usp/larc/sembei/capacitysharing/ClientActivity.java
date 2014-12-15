@@ -145,6 +145,7 @@ public class ClientActivity extends SupplicantActivity {
 					showToastMessage("CheckLogin successful!");
 					updateRemainingData(REMAINING_DATA);
 				} else {
+					setSessionKey("");
 					showToastMessage("CheckLogin failed: " + HANDSHAKE_FAILED);
 				}
 				break;
@@ -172,16 +173,16 @@ public class ClientActivity extends SupplicantActivity {
 							+ nonce
 							+ "\n"
 							+ "SESSION_KEY="
-							+ GatewayActivity.SESSION_KEY
+							+ getSessionKey()
 							+ "\n"
 							+ "hmac: "
 							+ hmac
 							+ "\n"
 							+ "mss.verify_hmac="
 							+ String.valueOf(mss.verify_hmac(nonce,
-									GatewayActivity.SESSION_KEY, hmac)) + "\n");
+									getSessionKey(), hmac)) + "\n");
 
-			if (mss.verify_hmac(nonce, GatewayActivity.SESSION_KEY, hmac)) {
+			if (mss.verify_hmac(nonce, getSessionKey(), hmac)) {
 				FileManager fileManager = new FileManager(ClientActivity.this);
 				String id = fileManager.readFile(RegisterActivity.CLIENT_ID);
 
@@ -207,7 +208,7 @@ public class ClientActivity extends SupplicantActivity {
 				params = getRedirectParams(arg[0]);
 				makeRedirectRequest(id, params[0], params[1]);
 			} else {
-				params = getLoginParams();
+				params = getLoginParams(id);
 				makeLoginRequest(id, params[0], params[1]);
 			}
 			return null;

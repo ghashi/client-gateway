@@ -31,9 +31,6 @@ import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 
 public class GatewayActivity extends SupplicantActivity {
 
-	// TODO fix "session_key"
-	public static final String SESSION_KEY = "UPB5iiqKPo37pi0whIwr/g==";
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// It is important to call setContentView before super.onCreate
@@ -144,7 +141,7 @@ public class GatewayActivity extends SupplicantActivity {
 	}
 
 	protected void makeHttpRequest(String url) {
-		Log.i("CASH", "SupplicantActivity.makeHttpRequest " + "remainingData="
+		Log.i("CASH", "GatewayActivity.makeHttpRequest " + "remainingData="
 				+ getRemainingData() + " url=" + url);
 		if (getRemainingData() > 0) {
 			new RequestTask(url).execute();
@@ -235,8 +232,10 @@ public class GatewayActivity extends SupplicantActivity {
 			String id = fileManager.readFile(RegisterActivity.GATEWAY_ID);
 
 			String[] params = new String[2];
-			params = getLoginParams();
+			params = getLoginParams(id);
 
+			Log.i("CASH", "LoginTask.doInBackground params="+params.toString());
+			
 			return makeLoginRequest(id, params[0], params[1]);
 		}
 
@@ -304,16 +303,16 @@ public class GatewayActivity extends SupplicantActivity {
 							+ nonce
 							+ "\n"
 							+ "SESSION_KEY="
-							+ SESSION_KEY
+							+ getSessionKey()
 							+ "\n"
 							+ "hmac: "
 							+ hmac
 							+ "\n"
 							+ "mss.verify_hmac="
 							+ String.valueOf(mss.verify_hmac(nonce,
-									SESSION_KEY, hmac)) + "\n");
+									getSessionKey(), hmac)) + "\n");
 
-			if (mss.verify_hmac(nonce, SESSION_KEY, hmac)) {
+			if (mss.verify_hmac(nonce, getSessionKey(), hmac)) {
 				String[] params = new String[2];
 				params = getCheckLoginParams(nonce);
 
@@ -331,6 +330,7 @@ public class GatewayActivity extends SupplicantActivity {
 				updateRemainingData(REMAINING_DATA);
 				new RequestTask(next_url).execute();
 			} else {
+				setSessionKey("");
 				showToastMessage("CheckLogin failed: " + HANDSHAKE_FAILED);
 			}
 		}

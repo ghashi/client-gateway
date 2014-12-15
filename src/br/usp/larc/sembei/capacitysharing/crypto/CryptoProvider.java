@@ -31,13 +31,13 @@ public abstract class CryptoProvider {
 		byte[] key = new byte[symmetricKeySize];
 		Random randomGenerator = new Random();
 		randomGenerator.nextBytes(key);
-		return Base64.encodeToString(key, Base64.DEFAULT);
+		return Base64.encodeToString(key, Base64.NO_WRAP);
 	}
 	public String symmetric_ivGen() {
 		byte[] iv = new byte[symmetricKeySize];
 		Random randomGenerator = new Random();
 		randomGenerator.nextBytes(iv);
-		return Base64.encodeToString(iv, Base64.DEFAULT);
+		return Base64.encodeToString(iv, Base64.NO_WRAP);
 	}
 	public native String symmetric_encrypt(String plaintext, String iv, String key);
 	public native String symmetric_decrypt(String ciphertext, String iv, String key);
