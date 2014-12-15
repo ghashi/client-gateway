@@ -2,29 +2,21 @@ package br.usp.larc.sembei.capacitysharing;
 
 import java.util.Locale;
 
-import br.usp.larc.sembei.capacitysharing.crypto.CryptoProvider;
-import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import br.usp.larc.sembei.capacitysharing.crypto.MSSCryptoProvider;
 
 public class BenchmarkActivity extends Activity {
 	
