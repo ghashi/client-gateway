@@ -174,7 +174,7 @@ public abstract class SupplicantActivity extends Activity {
 				// construct a string from the buffer
 				String writeMessage = new String(writeBuf);
 
-				Log.i("CASH", "mHandler.handleMessage at=MESSAGE_WRITE message=" + writeMessage);
+				Log.i("CASH", "mHandler.handleMessage at=MESSAGE_WRITE message.lenght()="+String.valueOf(writeMessage.length()) + "\nmessage=" + writeMessage );
 
 				break;
 			case MESSAGE_READ:
@@ -188,9 +188,10 @@ public abstract class SupplicantActivity extends Activity {
 				} 
 				buffer = buffer.concat(readMessage);
 				// call processMessage() when end of JSON is found
-				if(readMessage.contains("}")){
-					Log.i("CASH", "mHandler.handleMessage at=MESSAGE_READ message=" + buffer);
+				if(buffer.contains("\"}")){
+					Log.i("CASH", "mHandler.handleMessage at=MESSAGE_READ message.lenght()="+String.valueOf(buffer.length()) + "\nmessage=" + buffer);
 					processMessage(buffer);
+					buffer = null;
 				}
 
 				break;

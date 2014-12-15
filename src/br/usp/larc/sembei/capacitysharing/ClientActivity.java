@@ -33,7 +33,7 @@ public class ClientActivity extends SupplicantActivity {
 
 		// TODO APAGAR
 		SearchView sw = ((SearchView) findViewById(R.id.url_bar));
-		sw.setQuery("http://www.uol.com.br", false);
+		sw.setQuery("http://capacity-sharing.neocities.org", false);
 	}
 
 	@Override
@@ -149,6 +149,8 @@ public class ClientActivity extends SupplicantActivity {
 				}
 				break;
 			case REDIRECT_ACTION:
+				Log.i("CASH", "APAGAR readMessage="+readMessage);
+				processRedirectResponse(readMessage, next_url);
 				break;
 			default:
 				showToastMessage("Can't process received message");
@@ -231,7 +233,6 @@ public class ClientActivity extends SupplicantActivity {
 					}
 					break;
 				case REDIRECT_ACTION:
-					processRedirectResponse(arg[0], next_url);
 					break;
 				default:
 					break;

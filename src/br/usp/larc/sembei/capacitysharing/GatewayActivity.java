@@ -187,6 +187,7 @@ public class GatewayActivity extends SupplicantActivity {
 					String request = requestJson.getString("request");
 					String redirect_hmac = requestJson.getString("hmac");
 					response = makeRedirectRequest(redirect_id, request, redirect_hmac);
+					Log.i("CASH", "RedirectTask.doInBackground at=REDIRECT_ACTION response.size="+String.valueOf(response.length()));
 					break;
 				default:
 					break;
