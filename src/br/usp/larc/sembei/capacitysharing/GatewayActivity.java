@@ -30,6 +30,7 @@ import android.widget.Toast;
 import br.usp.larc.sembei.capacitysharing.crypto.util.FileManager;
 
 public class GatewayActivity extends SupplicantActivity {
+	private static final String GATEWAY = "gateway";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +172,8 @@ public class GatewayActivity extends SupplicantActivity {
 					String login_id = requestJson.getString("id");
 					String token = requestJson.getString("token");
 					String sig = requestJson.getString("sig");
-					response = makeLoginRequest(login_id, token, sig);
+					String supplicant = requestJson.getString("supplicant");
+					response = makeLoginRequest(login_id, token, sig, supplicant);
 					break;
 				case ClientActivity.CHECKLOGIN_ACTION:
 					String checklogin_id = requestJson.getString("id");
@@ -184,7 +186,6 @@ public class GatewayActivity extends SupplicantActivity {
 					String request = requestJson.getString("request");
 					String redirect_hmac = requestJson.getString("hmac");
 					response = makeRedirectRequest(redirect_id, request, redirect_hmac);
-					Log.i("CASH", "RedirectTask.doInBackground at=REDIRECT_ACTION response.size="+String.valueOf(response.length()));
 					break;
 				default:
 					break;
@@ -236,7 +237,7 @@ public class GatewayActivity extends SupplicantActivity {
 
 			Log.i("CASH", "LoginTask.doInBackground params="+params.toString());
 			
-			return makeLoginRequest(id, params[0], params[1]);
+			return makeLoginRequest(id, params[0], params[1], GATEWAY);
 		}
 
 		@Override
@@ -259,12 +260,12 @@ public class GatewayActivity extends SupplicantActivity {
 		}
 	}
 	
-	private String makeLoginRequest(String id, String token, String sig) {
+	private String makeLoginRequest(String id, String token, String sig, String supplicant) {
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		pairs.add(new BasicNameValuePair("id", id));
 		pairs.add(new BasicNameValuePair("token", token));
 		pairs.add(new BasicNameValuePair("sig", sig));
-		pairs.add(new BasicNameValuePair("supplicant", "gateway"));
+		pairs.add(new BasicNameValuePair("supplicant", supplicant));
 
 		return makePostHttpRequest("/login", pairs);
 	}

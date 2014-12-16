@@ -151,7 +151,7 @@ public abstract class SupplicantActivity extends Activity {
 	 */
 	// The Handler that gets information back from the BluetoothChatService
 	private final Handler mHandler = new Handler() {
-		private String buffer;
+		private StringBuilder buffer = new StringBuilder();
 		
 		@Override
 		public void handleMessage(Message msg) {
@@ -185,13 +185,13 @@ public abstract class SupplicantActivity extends Activity {
 
 				// restart buffer when new JSON is received
 				if(readMessage.contains("{")){
-					buffer = "";
+					buffer = new StringBuilder();
 				} 
-				buffer = buffer.concat(readMessage);
+				buffer.append(readMessage);
 				// call processMessage() when end of JSON is found
-				if(buffer.contains("\"}")){
+				if(readMessage.contains("\"}")){
 					Log.i("CASH", "mHandler.handleMessage at=MESSAGE_READ message.lenght()="+String.valueOf(buffer.length()) + "\nmessage=" + buffer);
-					processMessage(buffer);
+					processMessage(buffer.toString());
 					buffer = null;
 				}
 
@@ -457,6 +457,12 @@ Log.i("CASH", "decrypted_token=" + mss.asymmetric_decrypt(token, "AAgAZQI3ADcA0Q
 
 			JSONObject requestJson = new JSONObject(result);
 			String hmac = requestJson.getString("hmac");
+			
+			Log.i("CASH", "APAGAR hmac="+hmac);
+			Log.i("CASH", "APAGAR response.size="+requestJson.getString("response").length());
+			Log.i("CASH", "APAGAR response="+requestJson.getString("response"));
+			if (requestJson.getString("response").length() > 30)
+				Log.i("CASH", "APAGAR response.substring="+requestJson.getString("response").substring(requestJson.getString("response").length() - 30));
 
 			if (mss.verify_hmac(requestJson.getString("response"),
 					getSessionKey(), hmac)) {
