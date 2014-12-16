@@ -4,6 +4,7 @@
 #include "hmac.h"
 #include "util.h"
 #include "certificate.h"
+#include "ntru.h"
 
 #include <string.h>
 
@@ -175,7 +176,7 @@ JNIEXPORT jstring JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_CryptoP
 	DECODE_IN_B64(ciphertext);
 	DECODE_IN_B64(skey);
 
-	unsigned char plaintext[100];	// maximum plaintext size < 100 bytes
+	unsigned char *plaintext = malloc(NTRU_BUFFER_SIZE);
 
 	ntru_decryption(skey, ciphertext, plaintext);
         jstring jplaintext = (*jvm)->NewStringUTF(jvm, plaintext);
