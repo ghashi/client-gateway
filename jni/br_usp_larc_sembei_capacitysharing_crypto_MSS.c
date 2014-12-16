@@ -62,17 +62,23 @@ JNIEXPORT jobjectArray JNICALL Java_br_usp_larc_sembei_capacitysharing_crypto_MS
 	DECODE_IN_B64(skey);
 
 	unsigned char *signature = mss_sign(skey, message);
+	signature = mss_sign(skey, message);
 
 	jobjectArray jsignature = (jobjectArray)(*jvm)->NewObjectArray(jvm, 2, (*jvm)->FindClass(jvm, "java/lang/String"), (*jvm)->NewStringUTF(jvm, ""));
 
-	unsigned char buffer[2 * MAX(MSS_SIGNATURE_SIZE, MSS_SKEY_SIZE)];
-	unsigned int buffer_len = 2 * MAX(MSS_SIGNATURE_SIZE, MSS_SKEY_SIZE);
+	unsigned char buffer_signature[2 * MSS_SIGNATURE_SIZE];
+	unsigned int buffer_signature_len = 2 * MSS_SIGNATURE_SIZE;
  
-	base64encode(signature, MSS_SIGNATURE_SIZE, buffer, buffer_len);
-	(*jvm)->SetObjectArrayElement(jvm, jsignature, 0, (*jvm)->NewStringUTF(jvm, buffer));
+	base64encode(signature, MSS_SIGNATURE_SIZE, buffer_signature, buffer_signature_len);
+	(*jvm)->SetObjectArrayElement(jvm, jsignature, 0, (*jvm)->NewStringUTF(jvm, buffer_signature));
 
-	base64encode(skey, MSS_SKEY_SIZE, buffer, buffer_len);
-	(*jvm)->SetObjectArrayElement(jvm, jsignature, 1, (*jvm)->NewStringUTF(jvm, buffer));
+	unsigned char buffer_skey[2 * MSS_SKEY_SIZE];
+	unsigned int buffer_skey_len = 2 * MSS_SKEY_SIZE;
+ 
+	base64encode(skey, MSS_SKEY_SIZE, buffer_skey, buffer_skey_len);
+	(*jvm)->SetObjectArrayElement(jvm, jsignature, 1, (*jvm)->NewStringUTF(jvm, buffer_skey));
+
+	free(signature);
 
 	(*jvm)->ReleaseStringUTFChars(jvm, jString, message);
 	RELEASE(skey);
